@@ -10,7 +10,7 @@ ee.Initialize()
 
 #%%
 # Cloud masking function
-def maskL8sr(image, bands = ['B2', 'B3', 'B4', 'B5', 'B6', 'B7']):
+def maskL8sr(image, bands = ['B1','B2', 'B3']):
   cloudShadowBitMask = ee.Number(2).pow(3).int()
   cloudsBitMask = ee.Number(2).pow(5).int()
   qa = image.select('pixel_qa')
@@ -28,7 +28,7 @@ gdp_data = pd.read_csv('Data/gdp_data/nuts_gdp_cleaned.csv')
 gdp_data.head()
 
 #%%
-print(nuts2_poly['features'][2]['properties']['NUTS_ID'])
+len(nuts2_poly['features'])
 
 #%%
 t = nuts2_poly['features'][2]['geometry']['coordinates']
@@ -62,7 +62,52 @@ task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
 task.start()
 
 #%%
+gdp_data[gdp_data['region']==nuts2_poly['features'][21]['properties']['NUTS_ID']]
+
+#%%
+regions = []
+years = []
+gdp_values = []
+for i in range(332):
+    if nuts2_poly['features'][i]['properties']['NUTS_ID'] not in gdp_data['region'].values:
+        print(str(i)+': Not in regions.')
+    elif nuts2_poly['features'][i]['geometry']['type'] == 'MultiPolygon':
+        print(str(i)+': MultiPolygon.')
+    else:
+        t = nuts2_poly['features'][i]['geometry']['coordinates']
+        region = nuts2_poly['features'][i]['properties']['NUTS_ID']
+        for index, row in gdp_data[gdp_data['region']==nuts2_poly['features'][i]['properties']['NUTS_ID']].iterrows():
+            region = ee.Geometry.Polygon(t)
+            dataset = ee.ImageCollection('LANDSAT/LE07/C01/T1_TOA') \
+                .filterBounds(region) \
+                .filterDate((str(row['year'])+'-01-01'),(str(row['year'])+'-12-31')) \
+                .map(maskL8sr)
+            dataset = dataset.reduce('median')
+            task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
+                                      description=(row['region']+'_'+str(row['year'])),
+                                      folder="nuts_tfrecords",
+                                      region=region['coordinates'],
+                                      scale=30,
+                                      fileFormat='TFRecord',
+                                      formatOptions=imageExportFormatOptions,
+                                      skipEmptyTiles=True)
+
+            task.start()
+            
+            regions.append(region)
+            years.append(row['year'])
+            gdp_values.append(row['value'])
+            print(str(i)+': '+row['region']+str(row['year'])+' will be downloaded.')
+
+
+
+#%%
 # Print all tasks.
 print(ee.batch.Task.list())
+
+#%%
+for i in range(332):
+    print(nuts2_poly['features'][i]['properties']['NUTS_ID'])
+
 
 #%%
