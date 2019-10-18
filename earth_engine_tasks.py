@@ -9,8 +9,15 @@ import pandas as pd
 ee.Initialize()
 
 #%%
+# Use these bands for prediction.
+bands = ['B1', 'B2', 'B3']
+# Satellite data
+sat_dat = 'LANDSAT/LE07/C01/T1_SR'
+# Use Landsat 8 surface reflectance data.
+l8sr = ee.ImageCollection(sat_dat)
+
 # Cloud masking function
-def maskL8sr(image, bands = ['B1','B2', 'B3']):
+def maskL8sr(image):
   cloudShadowBitMask = ee.Number(2).pow(3).int()
   cloudsBitMask = ee.Number(2).pow(5).int()
   qa = image.select('pixel_qa')
@@ -28,38 +35,12 @@ gdp_data = pd.read_csv('Data/gdp_data/nuts_gdp_cleaned.csv')
 gdp_data.head()
 
 #%%
-len(nuts2_poly['features'])
-
-#%%
-t = nuts2_poly['features'][2]['geometry']['coordinates']
-area = nuts2_poly['features'][2]['properties']['NUTS_NAME']
-
-#%%
 # Specify patch and file dimensions.
 imageExportFormatOptions = {
   'patchDimensions': [256, 256],
   'maxFileSize': 104857600,
-  'compressed': True,
-  'collapseBands':True
+  'compressed': True
 }
-
-#%%
-# Load satellite imagery to gdrive
-region = ee.Geometry.Polygon(t)
-dataset = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR') \
-    .filterBounds(region) \
-    .filterDate('2016-01-01', '2016-12-31') \
-    .map(maskL8sr)
-dataset = dataset.reduce('median')
-task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
-                                      description=area,
-                                      folder="testing",
-                                      region=region['coordinates'],
-                                      scale=30,
-                                      fileFormat='TFRecord',
-                                      formatOptions=imageExportFormatOptions,
-                                      skipEmptyTiles=True)
-task.start()
 
 #%%
 gdp_data[gdp_data['region']==nuts2_poly['features'][21]['properties']['NUTS_ID']]
@@ -77,27 +58,30 @@ for i in range(332):
         t = nuts2_poly['features'][i]['geometry']['coordinates']
         region = nuts2_poly['features'][i]['properties']['NUTS_ID']
         for index, row in gdp_data[gdp_data['region']==nuts2_poly['features'][i]['properties']['NUTS_ID']].iterrows():
-            region = ee.Geometry.Polygon(t)
-            dataset = ee.ImageCollection('LANDSAT/LE07/C01/T1_TOA') \
-                .filterBounds(region) \
-                .filterDate((str(row['year'])+'-01-01'),(str(row['year'])+'-12-31')) \
-                .map(maskL8sr)
-            dataset = dataset.reduce('median')
-            task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
-                                      description=(row['region']+'_'+str(row['year'])),
-                                      folder="nuts_tfrecords",
-                                      region=region['coordinates'],
-                                      scale=30,
-                                      fileFormat='TFRecord',
-                                      formatOptions=imageExportFormatOptions,
-                                      skipEmptyTiles=True)
+            if row['year'] < 2016:
+                print('Before 2016')
+            else:
+                region = ee.Geometry.Polygon(t)
+                dataset = ee.ImageCollection(sat_dat) \
+                    .filterBounds(region) \
+                    .filterDate((str(row['year'])+'-01-01'),(str(row['year'])+'-12-31')) \
+                    .map(maskL8sr)
+                dataset = dataset.reduce('median')
+                task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
+                                        description=(row['region']+'_'+str(row['year'])),
+                                        folder="nuts_tfrecords",
+                                        region=region['coordinates'],
+                                        scale=30,
+                                        fileFormat='TFRecord',
+                                        formatOptions=imageExportFormatOptions,
+                                        skipEmptyTiles=True)
 
-            task.start()
-            
-            regions.append(region)
-            years.append(row['year'])
-            gdp_values.append(row['value'])
-            print(str(i)+': '+row['region']+str(row['year'])+' will be downloaded.')
+                task.start()
+                
+                regions.append(region)
+                years.append(row['year'])
+                gdp_values.append(row['value'])
+                print(str(i)+': '+row['region']+str(row['year'])+' will be downloaded.')
 
 
 
