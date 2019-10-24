@@ -38,12 +38,15 @@ gdp_data.head()
 # Specify patch and file dimensions.
 imageExportFormatOptions = {
   'patchDimensions': [256, 256],
-  'maxFileSize': 104857600,
+  'maxFileSize': 917334556,
   'compressed': True
 }
 
 #%%
 gdp_data[gdp_data['region']==nuts2_poly['features'][21]['properties']['NUTS_ID']]
+
+#%%
+nuts2_poly['features'][300]['properties']
 
 #%%
 regions = []
@@ -69,7 +72,7 @@ for i in range(332):
                 dataset = dataset.reduce('median')
                 task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
                                         description=(row['region']+'_'+str(row['year'])),
-                                        folder="nuts_tfrecords",
+                                        folder="nuts_tfrecords_all",
                                         region=region['coordinates'],
                                         scale=30,
                                         fileFormat='TFRecord',
