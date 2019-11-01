@@ -10,9 +10,9 @@ ee.Initialize()
 
 #%%
 # Use these bands for prediction.
-bands = ['B1', 'B2', 'B3']
+bands = ['avg_vis']
 # Satellite data
-sat_dat = 'LANDSAT/LE07/C01/T1_SR'
+sat_dat = 'NOAA/DMSP-OLS/NIGHTTIME_LIGHTS'
 # Use Landsat 8 surface reflectance data.
 l8sr = ee.ImageCollection(sat_dat)
 
@@ -46,7 +46,7 @@ imageExportFormatOptions = {
 gdp_data[gdp_data['region']==nuts2_poly['features'][21]['properties']['NUTS_ID']]
 
 #%%
-nuts2_poly['features'][300]['properties']
+nuts2_poly['features'][331]['properties']
 
 #%%
 regions = []
@@ -61,22 +61,24 @@ for i in range(332):
         t = nuts2_poly['features'][i]['geometry']['coordinates']
         region = nuts2_poly['features'][i]['properties']['NUTS_ID']
         for index, row in gdp_data[gdp_data['region']==nuts2_poly['features'][i]['properties']['NUTS_ID']].iterrows():
-            if row['year'] < 2016:
-                print('Before 2016')
+            if row['year'] >= 2014:
+                print('After 2014')
+            elif row['year'] < 2012:
+                print('Before 2012')
             else:
                 region = ee.Geometry.Polygon(t)
                 dataset = ee.ImageCollection(sat_dat) \
                     .filterBounds(region) \
                     .filterDate((str(row['year'])+'-01-01'),(str(row['year'])+'-12-31')) \
-                    .map(maskL8sr)
+                    .select(bands)
+                    #.map(maskL8sr)
                 dataset = dataset.reduce('median')
                 task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
                                         description=(row['region']+'_'+str(row['year'])),
-                                        folder="nuts_tfrecords_all",
+                                        folder="nuts_night",
                                         region=region['coordinates'],
                                         scale=30,
-                                        fileFormat='TFRecord',
-                                        formatOptions=imageExportFormatOptions,
+                                        fileFormat='GeoTIFF',
                                         skipEmptyTiles=True)
 
                 task.start()
