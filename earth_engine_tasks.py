@@ -63,8 +63,6 @@ for i in range(332):
         for index, row in gdp_data[gdp_data['region']==nuts2_poly['features'][i]['properties']['NUTS_ID']].iterrows():
             if row['year'] >= 2014:
                 print('After 2014')
-            elif row['year'] < 2012:
-                print('Before 2012')
             else:
                 region = ee.Geometry.Polygon(t)
                 dataset = ee.ImageCollection(sat_dat) \
@@ -75,10 +73,11 @@ for i in range(332):
                 dataset = dataset.reduce('median')
                 task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
                                         description=(row['region']+'_'+str(row['year'])),
-                                        folder="nuts_night",
+                                        folder="nuts_night_all",
                                         region=region['coordinates'],
                                         scale=30,
                                         fileFormat='GeoTIFF',
+                                        maxPixels= 3784216672400,
                                         skipEmptyTiles=True)
 
                 task.start()
