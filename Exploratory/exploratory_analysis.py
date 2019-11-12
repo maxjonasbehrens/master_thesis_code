@@ -30,7 +30,7 @@ gdp_cleaned = gdp_nuts[gdp_nuts['Country'].isnull() == False].drop(columns = ['c
 gdp_cleaned.columns = ['region','year','value','code','country']
 
 #%%
-#gdp_cleaned.to_csv("data/nuts_gdp_cleaned.csv", index = False)
+gdp_cleaned.to_csv("data/nuts_gdp_cleaned.csv", index = False)
 
 #%%
 # Number of missing values
