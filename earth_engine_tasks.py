@@ -10,9 +10,9 @@ ee.Initialize()
 
 #%%
 # Use these bands for prediction.
-bands = ['avg_vis']
+bands = ['B1','B2','B3']
 # Satellite data
-sat_dat = 'NOAA/DMSP-OLS/NIGHTTIME_LIGHTS'
+sat_dat = 'LANDSAT/LE07/C01/T1_SR'
 # Use Landsat 8 surface reflectance data.
 l8sr = ee.ImageCollection(sat_dat)
 
@@ -61,19 +61,23 @@ for i in range(332):
         t = nuts2_poly['features'][i]['geometry']['coordinates']
         region = nuts2_poly['features'][i]['properties']['NUTS_ID']
         for index, row in gdp_data[gdp_data['region']==nuts2_poly['features'][i]['properties']['NUTS_ID']].iterrows():
-            if row['year'] >= 2014:
-                print('After 2014')
+            area_name = row['region']+'_'+str(row['year'])
+            if row['year'] >= 2016:
+                print('After 2016')
+            # Used if data was not fully downloaded
+            #if area_name in files:
+            #    print('Already Downloaded.')
             else:
                 region = ee.Geometry.Polygon(t)
                 dataset = ee.ImageCollection(sat_dat) \
                     .filterBounds(region) \
                     .filterDate((str(row['year'])+'-01-01'),(str(row['year'])+'-12-31')) \
+                    .map(maskL8sr) \
                     .select(bands)
-                    #.map(maskL8sr)
                 dataset = dataset.reduce('median')
                 task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
-                                        description=(row['region']+'_'+str(row['year'])),
-                                        folder="nuts_night_all",
+                                        description=area_name,
+                                        folder="nuts_geotiff",
                                         region=region['coordinates'],
                                         scale=30,
                                         fileFormat='GeoTIFF',
