@@ -12,8 +12,10 @@ ee.Initialize()
 # Use these bands for prediction.
 bands = ['B1','B2','B3']
 # Satellite data
-sat_dat = 'LANDSAT/LE07/C01/T1_SR'
-# Use Landsat 8 surface reflectance data.
+sat_dat = 'LANDSAT/LE07/C01/T1_SR' # Daytime images (From 1999 to Present)
+#sat_dat = 'NOAA/DMSP-OLS/NIGHTTIME_LIGHTS' # Night images (From 1992 to 2014)
+
+# Use Set Images
 l8sr = ee.ImageCollection(sat_dat)
 
 # Cloud masking function
@@ -27,15 +29,17 @@ def maskL8sr(image):
 
 
 #%%
+# Open the geojson of NUTS 2 regions to get the coordinates of the regions
 with open("Data/geo_data/NUTS_RG_01M_2016_4326_LEVL_2.geojson") as f:
     nuts2_poly = json.load(f)
 
 #%%
+# Get the cleaned GDP data to match with regions and download correct data
 gdp_data = pd.read_csv('Data/gdp_data/nuts_gdp_cleaned.csv')
 gdp_data.head()
 
 #%%
-# Specify patch and file dimensions.
+# Specify patch and file dimensions. Only needed for TFrecords files - not used anymore
 imageExportFormatOptions = {
   'patchDimensions': [256, 256],
   'maxFileSize': 917334556,
@@ -43,12 +47,15 @@ imageExportFormatOptions = {
 }
 
 #%%
+# Test logic
 gdp_data[gdp_data['region']==nuts2_poly['features'][21]['properties']['NUTS_ID']]
 
 #%%
+# Test the json structure
 nuts2_poly['features'][331]['properties']
 
 #%%
+# Download the data from Earth Engine and save into Google Drive
 regions = []
 years = []
 gdp_values = []
@@ -96,10 +103,3 @@ for i in range(332):
 #%%
 # Print all tasks.
 print(ee.batch.Task.list())
-
-#%%
-for i in range(332):
-    print(nuts2_poly['features'][i]['properties']['NUTS_ID'])
-
-
-#%%
