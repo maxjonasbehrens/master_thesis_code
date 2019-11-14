@@ -1,7 +1,7 @@
 #%%
 import numpy as np
 import pyrsgis
-from skimage.transform import resize
+from PIL import Image
 
 #%%
 # Function to transform a weirdly formed region into a rectangle shaped image
@@ -68,7 +68,9 @@ def create_data(files,path,y_dat,resolution = 256,night=True):
             print("Image processed: ",str(i)," of ",str(len(files)))
         ds, temp = pyrsgis.raster.read(str(path+f))
         temp = preprocess_image(temp,night=night)
-        temp_resized = resize(temp, (resolution, resolution))
+        temp_img = Image.fromarray(temp)
+        temp_resized = temp_img.resize(temp_img, (resolution, resolution))
+        temp_resized = np.array(temp_resized)
         x.append(temp_resized)
         split1 = f.rsplit('_',1)[0]
         split2 = int(f.rsplit('_',1)[1].rsplit('.',1)[0])
