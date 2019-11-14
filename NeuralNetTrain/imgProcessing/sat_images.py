@@ -1,7 +1,9 @@
+#%%
 import numpy as np
 import pyrsgis
 from skimage.transform import resize
 
+#%%
 # Function to transform a weirdly formed region into a rectangle shaped image
 def preprocess_image(image,night=True):
     len_list = []
@@ -30,6 +32,7 @@ def preprocess_image(image,night=True):
                     else:
                         h_temp = np.hstack((h_temp,image[x:x+x_step,y:y+y_step]))
     else:
+        image = np.moveaxis(image,0,-1)
         for x in range(0,image.shape[0],x_step):
             for y in range(0,image.shape[1],y_step):
                 if np.any(np.isnan(image[x:x+x_step,y:y+y_step,:])) == False:
@@ -40,7 +43,7 @@ def preprocess_image(image,night=True):
                         h_temp = None
                     else:
                         h_temp = np.hstack((h_temp,image[x:x+x_step,y:y+y_step,:]))
-  
+
     final_features = np.array(processed_image,dtype=np.uint8)
     new_shape = final_features.shape[0]*final_features.shape[1]
     final_features = final_features.reshape((new_shape,final_features.shape[2]))
