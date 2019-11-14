@@ -17,3 +17,6 @@ print(h_temp.shape[2])
 np.any(np.isnan(a))
 
 # %%
+len(a[0])
+
+# %%

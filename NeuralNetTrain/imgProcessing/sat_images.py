@@ -50,7 +50,10 @@ def preprocess_image(image,night=True):
 
     final_features = np.array(processed_image,dtype=np.uint8)
     new_shape = final_features.shape[0]*final_features.shape[1]
-    final_features = final_features.reshape((new_shape,final_features.shape[2]))
+    if night:
+        final_features = final_features.reshape((new_shape,final_features.shape[2]))
+    else:
+        final_features = final_features.reshape((new_shape,final_features.shape[2],3))
   
     return final_features
 
