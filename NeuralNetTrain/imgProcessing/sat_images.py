@@ -40,6 +40,7 @@ def preprocess_image(image,night=True):
                     else:
                         h_temp = np.hstack((h_temp,image[x:x+x_step,y:y+y_step]))
     else:
+        image = image*100
         for x in range(0,image.shape[0],x_step):
             for y in range(0,image.shape[1],y_step):
                 if np.any(np.isnan(image[x:x+x_step,y:y+y_step,:])) == False:
