@@ -1,7 +1,7 @@
 #%%
 import numpy as np
 import pyrsgis
-from PIL import Image
+from skimage.transform import resize
 
 #%%
 # Function to transform a weirdly formed region into a rectangle shaped image
@@ -11,8 +11,12 @@ def preprocess_image(image,night=True):
     if night == False:
         image = np.moveaxis(image,0,-1)
     
-    for i in range(image.shape[0]):
-        len_list.append(len(image[i][~np.isnan(image[i])]))
+    if night:
+        for i in range(image.shape[0]):
+            len_list.append(len(image[i][~np.isnan(image[i])]))
+    else:
+        for i in range(image.shape[0]):
+            len_list.append(len(image[i][~np.isnan(image[i])])/3)
 
     for i in range(1,101):
         if image.shape[0] % i == 0:
@@ -68,9 +72,7 @@ def create_data(files,path,y_dat,resolution = 256,night=True):
             print("Image processed: ",str(i)," of ",str(len(files)))
         ds, temp = pyrsgis.raster.read(str(path+f))
         temp = preprocess_image(temp,night=night)
-        temp_img = Image.fromarray(temp)
-        temp_resized = temp_img.resize(temp_img, (resolution, resolution))
-        temp_resized = np.array(temp_resized)
+        temp_resized = resize(temp, (resolution, resolution))
         x.append(temp_resized)
         split1 = f.rsplit('_',1)[0]
         split2 = int(f.rsplit('_',1)[1].rsplit('.',1)[0])
