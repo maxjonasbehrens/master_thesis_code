@@ -72,6 +72,8 @@ def create_data(files,path,y_dat,resolution = 256,night=True):
         if i % 10 == 0:
             print("Image processed: ",str(i)," of ",str(len(files)))
         ds, temp = pyrsgis.raster.read(str(path+f))
+        if night == False:
+            temp = np.moveaxis(temp,0,-1)
         #temp = preprocess_image(temp,night=night)
         temp_resized = resize(temp, (resolution, resolution))
         x.append(temp_resized)
