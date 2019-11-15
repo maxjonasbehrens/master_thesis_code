@@ -72,7 +72,7 @@ def create_data(files,path,y_dat,resolution = 256,night=True):
         if i % 10 == 0:
             print("Image processed: ",str(i)," of ",str(len(files)))
         ds, temp = pyrsgis.raster.read(str(path+f))
-        temp = preprocess_image(temp,night=night)
+        #temp = preprocess_image(temp,night=night)
         temp_resized = resize(temp, (resolution, resolution))
         x.append(temp_resized)
         split1 = f.rsplit('_',1)[0]
