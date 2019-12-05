@@ -6,12 +6,12 @@ import re
 
 #%%
 # Import gdp data
-gdp_data = pd.read_excel("Data/nuts2_gdp.xls",sheet_name='Data',skiprows=530,nrows=516)
+gdp_data = pd.read_excel("Data/gdp_data/nuts2_gdp.xls",sheet_name='Data',skiprows=530,nrows=516)
 gdp_data.head()
 
 #%%
 # Import NUTS 2 country metainfos
-country_code = pd.read_csv("Data/country_codes.csv", delimiter=";")
+country_code = pd.read_csv("Data/gdp_data/country_codes.csv", delimiter=";")
 country_code.head()
 
 #%%
@@ -21,7 +21,7 @@ gdp_long.head()
 
 #%%
 # Extract the country codes from column
-gdp_long['countries'] = gdp_long['GEO/TIME'].str.extract('([^0-9]+)', expand=False).str.strip()
+gdp_long['countries'] = gdp_long['GEO/TIME'].str[:2]
 gdp_long.head()
 
 #%%
@@ -31,12 +31,12 @@ gdp_nuts.head()
 
 #%%
 # Drop rows where country is not recorded
-gdp_cleaned = gdp_nuts[gdp_nuts['Country'].isnull() == False].drop(columns = ['countries'])
+gdp_cleaned = gdp_nuts[(gdp_nuts['Country'].isnull() == False) & (gdp_nuts['value'].isnull() == False)].drop(columns = ['countries'])
 gdp_cleaned.columns = ['region','year','value','code','country']
 
 #%%
 # Save the cleaned data frame
-gdp_cleaned.to_csv("data/nuts_gdp_cleaned.csv", index = False)
+gdp_cleaned.to_csv("Data/gdp_data/nuts_gdp_cleaned.csv", index = False)
 
 #%%
 # Sanity check
