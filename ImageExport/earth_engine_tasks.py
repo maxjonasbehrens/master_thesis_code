@@ -69,24 +69,24 @@ for i in range(332):
         region = nuts2_poly['features'][i]['properties']['NUTS_ID']
         for index, row in gdp_data[gdp_data['region']==nuts2_poly['features'][i]['properties']['NUTS_ID']].iterrows():
             area_name = row['region']+'_'+str(row['year'])
-            if row['year'] >= 2016:
-                print('After 2016')
+            #if row['year'] >= 2016:
+            #    print('After 2016')
             # Used if data was not fully downloaded
             #if area_name in files:
             #    print('Already Downloaded.')
-            else:
+            if 1==1:
                 region = ee.Geometry.Polygon(t)
                 dataset = ee.ImageCollection(sat_dat) \
                     .filterBounds(region) \
                     .filterDate((str(row['year'])+'-01-01'),(str(row['year'])+'-12-31')) \
                     .map(maskL8sr) \
                     .select(bands)
-                dataset = dataset.reduce('median')
+                dataset = dataset.reduce('mean')
                 task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
                                         description=area_name,
                                         folder="nuts_geotiff",
                                         region=region['coordinates'],
-                                        scale=30,
+                                        scale=80,
                                         fileFormat='GeoTIFF',
                                         maxPixels= 3784216672400,
                                         skipEmptyTiles=True)
