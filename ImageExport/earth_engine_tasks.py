@@ -99,8 +99,3 @@ for i in range(332):
                 gdp_values.append(row['value'])
                 print(str(i)+': '+row['region']+str(row['year'])+' will be downloaded.')
 
-
-
-#%%
-# Print all tasks.
-print(ee.batch.Task.list())
