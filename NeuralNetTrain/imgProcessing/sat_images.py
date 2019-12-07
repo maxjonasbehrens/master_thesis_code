@@ -63,7 +63,7 @@ def preprocess_image(image,night=True):
     return final_features
 
   # Function to create input data for CNN
-def create_data(files,path,y_dat,resolution = 256,night=True):
+def create_data(files,path,y_dat, prediction, resolution = 256,night=True):
     x = []
     y = []
     label = []
@@ -80,18 +80,18 @@ def create_data(files,path,y_dat,resolution = 256,night=True):
         x.append(temp_resized)
         split1 = f.rsplit('_',1)[0]
         split2 = int(f.rsplit('_',1)[1].rsplit('.',1)[0])
-        y.append(y_dat.loc[(y_dat['region']==split1) & (y_dat['year']==split2),'value'])
+        y.append(y_dat.loc[(y_dat['nuts2']==split1) & (y_dat['year']==split2),prediction])
         label.append(f)
         i += 1
     return x, y, label
 
 # Function to use if processed images are loaded and corresponding y and label have to be produced
-def create_y_label(files,path,y_dat):
+def create_y_label(files,path,y_dat,prediction):
     y = []
     label = []
     for f in files:
         split1 = f.rsplit('_',1)[0]
         split2 = int(f.rsplit('_',1)[1].rsplit('.',1)[0])
-        y.append(y_dat.loc[(y_dat['region']==split1) & (y_dat['year']==split2),'value'])
+        y.append(y_dat.loc[(y_dat['nuts2']==split1) & (y_dat['year']==split2),prediction])
         label.append(f)
     return y, label
