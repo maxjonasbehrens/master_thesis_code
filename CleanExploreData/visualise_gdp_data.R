@@ -19,7 +19,14 @@ dat$country <- as.factor(dat$country)
 
 # Basic Data Exploration --------------------------------------------------
 
+# Region with highest value
 dat[dat$country_value == max(dat$country_value),]
+
+# No. of regions per country
+dat %>% 
+  group_by(country) %>% 
+  summarise(distinct_regions = n_distinct(nuts2)) %>% 
+  arrange(desc(distinct_regions))
 
 # Visualisation -----------------------------------------------------------
 
@@ -33,10 +40,12 @@ dat %>%
 dat %>% 
   group_by(country) %>% 
   summarise(country_value = mean(country_value)) %>% 
-  ggplot(aes(reorder(country,-country_value),country_value))+
+  ggplot(aes(reorder(country,-country_value),country_value, fill = country_value))+
   geom_col()+
   theme_bw(base_size = 14)+
   xlab("Country")+
   ylab("Average GDP Value per country")+
-  theme(axis.text.x = element_text(angle = 70, vjust = 1, hjust = 1))
+  theme(axis.text.x = element_text(angle = 70, vjust = 1, hjust = 1))+
+  theme(legend.position = "none")
 
+ggsave("mean_gdp_per_country.png", width = 8, height = 6)
