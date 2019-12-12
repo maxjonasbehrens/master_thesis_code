@@ -3,67 +3,8 @@ import numpy as np
 import pyrsgis
 from skimage.transform import resize
 
-#%%
-# Function to transform a weirdly formed region into a rectangle shaped image
-def preprocess_image(image,night=True):
-    len_list = []
-
-    if night == False:
-        image = np.moveaxis(image,0,-1)
-    
-    if night:
-        for i in range(image.shape[0]):
-            len_list.append(len(image[i][~np.isnan(image[i])]))
-    else:
-        for i in range(image.shape[0]):
-            len_list.append(len(image[i][~np.isnan(image[i])])/3)
-
-    for i in range(1,101):
-        if image.shape[0] % i == 0:
-            x_step = i
-        if image.shape[1] % i == 0:
-            y_step = i
-
-    len_mean = np.mean(len_list)
-    processed_image = []
-    h_temp = None
-
-    if night:  
-        for x in range(0,image.shape[0],x_step):
-            for y in range(0,image.shape[1],y_step):
-                if np.any(np.isnan(image[x:x+x_step,y:y+y_step])) == False:
-                    if h_temp is None:
-                        h_temp = image[x:x+x_step,y:y+y_step]
-                    elif h_temp.shape[1] >= len_mean:
-                        processed_image.append(h_temp)
-                        h_temp = None
-                    else:
-                        h_temp = np.hstack((h_temp,image[x:x+x_step,y:y+y_step]))
-    else:
-        image = image*1000
-        for x in range(0,image.shape[0],x_step):
-            for y in range(0,image.shape[1],y_step):
-                if np.any(np.isnan(image[x:x+x_step,y:y+y_step,:])) == False:
-                    if h_temp is None:
-                        h_temp = image[x:x+x_step,y:y+y_step,:]
-                    elif h_temp.shape[1] >= len_mean:
-                        processed_image.append(h_temp)
-                        h_temp = None
-                    else:
-                        temp_area = image[x:x+x_step,y:y+y_step,:]
-                        h_temp = np.hstack((h_temp,temp_area))
-
-    final_features = np.array(processed_image,dtype=np.uint8)
-    new_shape = final_features.shape[0]*final_features.shape[1]
-    if night:
-        final_features = final_features.reshape((new_shape,final_features.shape[2]))
-    else:
-        final_features = final_features.reshape((new_shape,final_features.shape[2],3))
-  
-    return final_features
-
   # Function to create input data for CNN
-def create_data(files,path,y_dat, prediction, resolution = 256,night=True):
+def create_data(files,path,y_dat, prediction,replace_nan = "mean",resolution = 256,night=True):
     x = []
     y = []
     label = []
@@ -74,9 +15,18 @@ def create_data(files,path,y_dat, prediction, resolution = 256,night=True):
         ds, temp = pyrsgis.raster.read(str(path+f))
         if night == False:
             temp = np.moveaxis(temp,0,-1)
-        #temp = preprocess_image(temp,night=night)
+
+        if replace_nan == "mean":
+            temp[np.isnan(temp)] = round(np.nanmean(temp),3)
+        elif replace_nan == "normal":
+            mu, sigma = np.nanmean(temp), np.nanstd(temp)
+            n_nan = len(temp[np.isnan(temp)])
+            temp[np.isnan(temp)] = np.random.normal(mu,sigma,n_nan)
+        else:
+            temp[np.isnan(temp)] = 0.0
+        
         temp_resized = resize(temp, (resolution, resolution))
-        temp_resized[np.isnan(temp_resized)] = round(np.nanmean(temp),3)
+        
         x.append(temp_resized)
         split1 = f.rsplit('_',1)[0]
         split2 = int(f.rsplit('_',1)[1].rsplit('.',1)[0])
