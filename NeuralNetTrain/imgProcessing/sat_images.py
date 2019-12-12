@@ -76,7 +76,7 @@ def create_data(files,path,y_dat, prediction, resolution = 256,night=True):
             temp = np.moveaxis(temp,0,-1)
         #temp = preprocess_image(temp,night=night)
         temp_resized = resize(temp, (resolution, resolution))
-        temp_resized[np.isnan(temp_resized)] = np.mean(temp)
+        temp_resized[np.isnan(temp_resized)] = round(np.mean(temp),3)
         x.append(temp_resized)
         split1 = f.rsplit('_',1)[0]
         split2 = int(f.rsplit('_',1)[1].rsplit('.',1)[0])
