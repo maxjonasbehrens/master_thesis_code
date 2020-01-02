@@ -10,7 +10,7 @@ ee.Initialize()
 
 #%%
 # Use these bands for prediction.
-bands = ['B1','B2','B3']
+#bands = ['B1','B2','B3']
 bands = ['avg_vis']
 # Satellite data
 #sat_dat = 'LANDSAT/LE07/C01/T1_SR' # Daytime images (From 1999 to Present)
@@ -87,7 +87,7 @@ for i in range(332):
                                         description=area_name,
                                         folder="nuts_night_raw",
                                         region=region['coordinates'],
-                                        #scale=30,
+                                        scale=30,
                                         fileFormat='GeoTIFF',
                                         maxPixels= 3784216672400,
                                         skipEmptyTiles=True)
