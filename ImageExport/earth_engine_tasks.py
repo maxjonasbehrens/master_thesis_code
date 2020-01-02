@@ -85,9 +85,9 @@ for i in range(332):
                 dataset = dataset.reduce('mean')
                 task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
                                         description=area_name,
-                                        folder="nuts_night",
+                                        folder="nuts_night_raw",
                                         region=region['coordinates'],
-                                        scale=80,
+                                        #scale=30,
                                         fileFormat='GeoTIFF',
                                         maxPixels= 3784216672400,
                                         skipEmptyTiles=True)
@@ -99,3 +99,6 @@ for i in range(332):
                 gdp_values.append(row['value'])
                 print(str(i)+': '+row['region']+str(row['year'])+' will be downloaded.')
 
+
+
+# %%
