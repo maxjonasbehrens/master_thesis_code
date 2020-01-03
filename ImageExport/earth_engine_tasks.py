@@ -10,11 +10,11 @@ ee.Initialize()
 
 #%%
 # Use these bands for prediction.
-#bands = ['B1','B2','B3']
-bands = ['avg_vis']
+bands = ['B1','B2','B3']
+#bands = ['avg_vis']
 # Satellite data
-#sat_dat = 'LANDSAT/LE07/C01/T1_SR' # Daytime images (From 1999 to Present)
-sat_dat = 'NOAA/DMSP-OLS/NIGHTTIME_LIGHTS' # Night images (From 1992 to 2014)
+sat_dat = 'LANDSAT/LE07/C01/T1_SR' # Daytime images (From 1999 to Present)
+#sat_dat = 'NOAA/DMSP-OLS/NIGHTTIME_LIGHTS' # Night images (From 1992 to 2014)
 
 # Use Set Images
 l8sr = ee.ImageCollection(sat_dat)
@@ -60,7 +60,7 @@ nuts2_poly['features'][331]['properties']
 regions = []
 years = []
 gdp_values = []
-for i in range(332):
+for i in range(51):
     if nuts2_poly['features'][i]['properties']['NUTS_ID'] not in gdp_data['region'].values:
         print(str(i)+': Not in regions.')
     elif nuts2_poly['features'][i]['geometry']['type'] == 'MultiPolygon':
@@ -70,22 +70,24 @@ for i in range(332):
         region = nuts2_poly['features'][i]['properties']['NUTS_ID']
         for index, row in gdp_data[gdp_data['region']==nuts2_poly['features'][i]['properties']['NUTS_ID']].iterrows():
             area_name = row['region']+'_'+str(row['year'])
-            if row['year'] >= 2014:
-                print('After 2014')
+            #if row['year'] >= 2014:
+            #    print('After 2014')
             # Used if data was not fully downloaded
             #if area_name in files:
             #    print('Already Downloaded.')
+            if 1 == 0: # For day images (no if clause)
+                pass
             else:
                 region = ee.Geometry.Polygon(t)
                 dataset = ee.ImageCollection(sat_dat) \
                     .filterBounds(region) \
                     .filterDate((str(row['year'])+'-01-01'),(str(row['year'])+'-12-31')) \
-                    .select(bands)
-                    #.map(maskL8sr) \    
+                    .map(maskL8sr) \
+                    .select(bands)        
                 dataset = dataset.reduce('mean')
                 task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
                                         description=area_name,
-                                        folder="nuts_night_raw",
+                                        folder="nuts_day_raw",
                                         region=region['coordinates'],
                                         scale=30,
                                         fileFormat='GeoTIFF',
