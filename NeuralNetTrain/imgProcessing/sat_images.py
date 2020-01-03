@@ -61,6 +61,8 @@ def create_sample_data(files,path,y_dat,prediction='nuts_value',resolution=256):
             print("Image processed: ",str(i)," of ",str(len(files)))
         ds, temp = pyrsgis.raster.read(str(path+f))
         temp = np.moveaxis(temp,0,-1)
+        
+        del ds
 
         for k in range(26):
             x = round(np.random.uniform(high = temp.shape[0]))
@@ -78,5 +80,6 @@ def create_sample_data(files,path,y_dat,prediction='nuts_value',resolution=256):
             y_.append(y_dat.loc[(y_dat['nuts2']==split1) & (y_dat['year']==split2),prediction])
             label.append(f)
         
+        del temp
         i += 1
     return x_, y_, label
