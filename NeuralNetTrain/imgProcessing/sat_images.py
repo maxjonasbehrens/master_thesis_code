@@ -62,7 +62,7 @@ def create_sample_data(files,path,y_dat,prediction='nuts_value',resolution=256):
         ds, temp = pyrsgis.raster.read(str(path+f))
         temp = np.moveaxis(temp,0,-1)
 
-        for k in range(51):
+        for k in range(26):
             x = round(np.random.uniform(high = temp.shape[0]))
             y = round(np.random.uniform(high = temp.shape[1]))
             sample = temp[x:x+resolution,y:y+resolution,:]
