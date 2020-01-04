@@ -138,6 +138,8 @@ def process_normal_image(img_array, region_type, region, year, y, replace_nan = 
 # Process merged image to combine day and night
 def process_merged_image(img_day,img_night, region_type, region, year, y):
     
+    img_night = np.array([img_night])
+
     img = np.append(img_day,img_night,axis = 2)
 
     filepath = str(region_type)+'/merge/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
