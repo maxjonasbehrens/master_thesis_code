@@ -61,11 +61,15 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                 pass
             else:
                 if kind == 'subsample':
-                    process_subsample_image(img,'training',region,year,y,resolution=128)
+                    process_subsample_image(img,'training',region,year,y,resolution=resolution)
                 elif kind == 'merge':
                     ds, img_day = pyrsgis.raster.read(str(alt_path)+str(f))
                     img_day = np.swapaxes(img,0,-1)
                     img_day = np.swapaxes(img,0,-2)
+
+                    img = resize(img, (resolution, resolution))
+                    img_day = resize(img_day, (resolution, resolution))
+                    
                     process_merged_image(img_day,img,'training',region,year,y)
                 else:
                     if night:
@@ -78,11 +82,15 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                 pass
             else:
                 if kind == 'subsample':
-                    process_subsample_image(img,'validation',region,year,y,resolution=128)
+                    process_subsample_image(img,'validation',region,year,y,resolution=resolution)
                 elif kind == 'merge':
                     ds, img_day = pyrsgis.raster.read(str(alt_path)+str(f))
                     img_day = np.swapaxes(img,0,-1)
                     img_day = np.swapaxes(img,0,-2)
+
+                    img = resize(img, (resolution, resolution))
+                    img_day = resize(img_day, (resolution, resolution))
+
                     process_merged_image(img_day,img,'validation',region,year,y)
                 else:
                     if night:
@@ -95,11 +103,15 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                 pass
             else:
                 if kind == 'subsample':
-                    process_subsample_image(img,'test',region,year,y,resolution=128)
+                    process_subsample_image(img,'test',region,year,y,resolution=resolution)
                 elif kind == 'merge':
                     ds, img_day = pyrsgis.raster.read(str(alt_path)+str(f))
                     img_day = np.swapaxes(img,0,-1)
                     img_day = np.swapaxes(img,0,-2)
+
+                    img = resize(img, (resolution, resolution))
+                    img_day = resize(img_day, (resolution, resolution))
+
                     process_merged_image(img_day,img,'test',region,year,y)
                 else:
                     if night:
