@@ -67,6 +67,9 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                     img_day = np.swapaxes(img,0,-1)
                     img_day = np.swapaxes(img,0,-2)
 
+                    img = np.array([img])
+                    img = np.swapaxes(img,0,-1)
+
                     img = resize(img, (resolution, resolution))
                     img_day = resize(img_day, (resolution, resolution))
 
@@ -137,8 +140,6 @@ def process_normal_image(img_array, region_type, region, year, y, replace_nan = 
 
 # Process merged image to combine day and night
 def process_merged_image(img_day,img_night, region_type, region, year, y):
-    
-    img_night = np.array([img_night])
 
     img = np.append(img_day,img_night,axis = 2)
 
