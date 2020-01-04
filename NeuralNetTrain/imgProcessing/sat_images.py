@@ -11,6 +11,7 @@ from os.path import isfile, join
 
 #%%
 def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,replace_nan = 'mean', resolution = 256, night = True, test_size = 0.2):
+    
     files = [f for f in listdir(path) if isfile(join(path, f))]
     
     np.random.seed(42)
@@ -33,12 +34,14 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
     val_split = train_split[msk_val]
     train_split = train_split[~msk_val]
 
-    i = 0
+    l = 0
     
     for f in files:
 
-        if i % 10 == 0:
-            print("Image processed: ",str(i)," of ",str(len(files)))
+        if l % 10 == 0:
+            print("Image processed: ",str(l)," of ",str(len(files)))
+        
+        l += 1
 
         region = f.rsplit('_',1)[0]
         year = int(f.rsplit('_',1)[1].rsplit('.',1)[0])
@@ -101,8 +104,6 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         process_normal_image(img,'test',region,year,y,'mean','night')    
                     else:
                         process_normal_image(img,'test',region,year,y,'mean','day')
-
-        i += 1
                 
 # Process raw image to normal day/night image
 def process_normal_image(img_array, region_type, region, year, y, replace_nan = 'mean', time = 'day'):
