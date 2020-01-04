@@ -150,21 +150,22 @@ def process_merged_image(img_day,img_night, region_type, region, year, y):
 # Process subsample from raw image
 def process_subsample_image(img_array, region_type, region, year, y_value, resolution = 256, sample_size = 50):
     
-    for k in range((sample_size+1)):
-        x = round(np.random.uniform(high = img_array.shape[0]))
-        y = round(np.random.uniform(high = img_array.shape[1]))
-        sample = img_array[x:x+resolution,y:y+resolution,:]
-        
-        while np.isnan(sample).any():
+    try:
+        for k in range((sample_size+1)):
             x = round(np.random.uniform(high = img_array.shape[0]))
             y = round(np.random.uniform(high = img_array.shape[1]))
             sample = img_array[x:x+resolution,y:y+resolution,:]
+            
+            while np.isnan(sample).any():
+                x = round(np.random.uniform(high = img_array.shape[0]))
+                y = round(np.random.uniform(high = img_array.shape[1]))
+                sample = img_array[x:x+resolution,y:y+resolution,:]
 
-        filepath = str(region_type)+'/subsample/'+str(region)+'_'+str(y_value)+'_'+str(year)+'_'+str(k)+'.png'
-        try:
+            filepath = str(region_type)+'/subsample/'+str(region)+'_'+str(y_value)+'_'+str(year)+'_'+str(k)+'.png'
+            
             imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, sample)
-        except:
-            print('File not exists')
+    except:
+        print('File not exists')
 
 
 #%%
