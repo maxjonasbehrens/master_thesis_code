@@ -34,14 +34,16 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
     val_split = train_split[msk_val]
     train_split = train_split[~msk_val]
 
-    #l = 0
+    print('Random data splitting finished.')
+
+    i = 0
     
     for f in files:
 
-        #if l % 10 == 0:
-        print("Image processed: ",str(f))
+        if i % 10 == 0:
+            print("Image processed: ",str(i)," of ",str(len(files)))
         
-        #l += 1
+        i += 1
 
         region = f.rsplit('_',1)[0]
         year = int(f.rsplit('_',1)[1].rsplit('.',1)[0])
@@ -55,7 +57,7 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
             img = np.stack((img,)*3, axis = -1)
 
         if region in train_split:
-            if math.isnan(y[i]):
+            if math.isnan(y):
                 pass
             else:
                 if kind == 'subsample':
@@ -72,7 +74,7 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         process_normal_image(img,'training',region,year,y,'mean','day')
 
         elif region in val_split:
-            if math.isnan(y[i]):
+            if math.isnan(y):
                 pass
             else:
                 if kind == 'subsample':
@@ -89,7 +91,7 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         process_normal_image(img,'validation',region,year,y,'mean','day')
 
         else:
-            if math.isnan(y[i]):
+            if math.isnan(y):
                 pass
             else:
                 if kind == 'subsample':
