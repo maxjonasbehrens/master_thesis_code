@@ -47,7 +47,7 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
 
         region = f.rsplit('_',1)[0]
         year = int(f.rsplit('_',1)[1].rsplit('.',1)[0])
-        y = y_dat.loc[(y_dat['nuts2']==region) & (y_dat['year']==year),prediction]
+        y = y_dat.loc[(y_dat['nuts2']==region) & (y_dat['year']==year),prediction].values[0]
 
         ds, img = pyrsgis.raster.read(str(path)+str(f))
         img = np.swapaxes(img,0,-1)
