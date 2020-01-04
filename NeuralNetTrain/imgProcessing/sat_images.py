@@ -161,7 +161,10 @@ def process_subsample_image(img_array, region_type, region, year, y_value, resol
             sample = img_array[x:x+resolution,y:y+resolution,:]
 
         filepath = str(region_type)+'/subsample/'+str(region)+'_'+str(y_value)+'_'+str(year)+'_'+str(k)+'.png'
-        imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, sample)
+        try:
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, sample)
+        except:
+            print('File not exists')
 
 
 #%%
