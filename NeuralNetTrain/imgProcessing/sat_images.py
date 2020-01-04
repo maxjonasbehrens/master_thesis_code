@@ -34,14 +34,14 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
     val_split = train_split[msk_val]
     train_split = train_split[~msk_val]
 
-    l = 0
+    #l = 0
     
     for f in files:
 
-        if l % 10 == 0:
-            print("Image processed: ",str(l)," of ",str(len(files)))
+        #if l % 10 == 0:
+        print("Image processed: ",str(f))
         
-        l += 1
+        #l += 1
 
         region = f.rsplit('_',1)[0]
         year = int(f.rsplit('_',1)[1].rsplit('.',1)[0])
