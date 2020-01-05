@@ -108,14 +108,18 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                 if kind == 'subsample':
                     process_subsample_image(img,'test',region,year,y,resolution=resolution)
                 elif kind == 'merge':
-                    ds, img_day = pyrsgis.raster.read(str(alt_path)+str(f))
-                    img_day = np.swapaxes(img,0,-1)
-                    img_day = np.swapaxes(img,0,-2)
+                    try:
+                        ds, img_day = pyrsgis.raster.read(str(alt_path)+str(f))
+                        
+                        img_day = np.swapaxes(img,0,-1)
+                        img_day = np.swapaxes(img,0,-2)
 
-                    img = resize(img, (resolution, resolution))
-                    img_day = resize(img_day, (resolution, resolution))
+                        img = resize(img, (resolution, resolution))
+                        img_day = resize(img_day, (resolution, resolution))
 
-                    process_merged_image(img_day,img,'test',region,year,y)
+                        process_merged_image(img_day,img,'test',region,year,y)
+                    except:
+                        print('Cannot find file.')
                 else:
                     if night:
                         process_normal_image(img,'test',region,year,y,'mean','night')    
