@@ -63,17 +63,22 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                 if kind == 'subsample':
                     process_subsample_image(img,'training',region,year,y,resolution=resolution)
                 elif kind == 'merge':
-                    ds, img_day = pyrsgis.raster.read(str(alt_path)+str(f))
-                    img_day = np.swapaxes(img,0,-1)
-                    img_day = np.swapaxes(img,0,-2)
+                    try:
+                        ds, img_day = pyrsgis.raster.read(str(alt_path)+str(f))
+                        
+                        img_day = np.swapaxes(img_day,0,-1)
+                        img_day = np.swapaxes(img_day,0,-2)
 
-                    img = np.array([img])
-                    img = np.swapaxes(img,0,-1)
+                        img = np.array([img])
+                        img = np.swapaxes(img,0,-1)
+                        img = np.swapaxes(img,0,-2)
 
-                    img = resize(img, (resolution, resolution))
-                    img_day = resize(img_day, (resolution, resolution))
+                        img = resize(img, (resolution, resolution))
+                        img_day = resize(img_day, (resolution, resolution))
 
-                    process_merged_image(img_day,img,'training',region,year,y)
+                        process_merged_image(img_day,img,'training',region,year,y)
+                    except:
+                        print('Cannot find file.')
                 else:
                     if night:
                         process_normal_image(img,'training',region,year,y,'mean','night')    
@@ -87,14 +92,22 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                 if kind == 'subsample':
                     process_subsample_image(img,'validation',region,year,y,resolution=resolution)
                 elif kind == 'merge':
-                    ds, img_day = pyrsgis.raster.read(str(alt_path)+str(f))
-                    img_day = np.swapaxes(img,0,-1)
-                    img_day = np.swapaxes(img,0,-2)
+                    try:
+                        ds, img_day = pyrsgis.raster.read(str(alt_path)+str(f))
+                        
+                        img_day = np.swapaxes(img_day,0,-1)
+                        img_day = np.swapaxes(img_day,0,-2)
 
-                    img = resize(img, (resolution, resolution))
-                    img_day = resize(img_day, (resolution, resolution))
+                        img = np.array([img])
+                        img = np.swapaxes(img,0,-1)
+                        img = np.swapaxes(img,0,-2)
 
-                    process_merged_image(img_day,img,'validation',region,year,y)
+                        img = resize(img, (resolution, resolution))
+                        img_day = resize(img_day, (resolution, resolution))
+
+                        process_merged_image(img_day,img,'validation',region,year,y)
+                    except:
+                        print('Cannot find file.')
                 else:
                     if night:
                         process_normal_image(img,'validation',region,year,y,'mean','night')    
@@ -111,8 +124,12 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                     try:
                         ds, img_day = pyrsgis.raster.read(str(alt_path)+str(f))
                         
-                        img_day = np.swapaxes(img,0,-1)
-                        img_day = np.swapaxes(img,0,-2)
+                        img_day = np.swapaxes(img_day,0,-1)
+                        img_day = np.swapaxes(img_day,0,-2)
+
+                        img = np.array([img])
+                        img = np.swapaxes(img,0,-1)
+                        img = np.swapaxes(img,0,-2)
 
                         img = resize(img, (resolution, resolution))
                         img_day = resize(img_day, (resolution, resolution))
@@ -125,7 +142,8 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         process_normal_image(img,'test',region,year,y,'mean','night')    
                     else:
                         process_normal_image(img,'test',region,year,y,'mean','day')
-                
+
+#%%                
 # Process raw image to normal day/night image
 def process_normal_image(img_array, region_type, region, year, y, replace_nan = 'mean', time = 'day'):
     
@@ -146,6 +164,10 @@ def process_normal_image(img_array, region_type, region, year, y, replace_nan = 
 def process_merged_image(img_day,img_night, region_type, region, year, y):
 
     img = np.append(img_day,img_night,axis = 2)
+
+    img[np.isnan(img)] = 0.0
+    img[:,:,:2] = img[:,:,:2]/np.max(img[:,:,:2])
+    img[:,:,3] = img[:,:,3]/np.max(img[:,:,3]) 
 
     filepath = str(region_type)+'/merge/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
     imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img)
