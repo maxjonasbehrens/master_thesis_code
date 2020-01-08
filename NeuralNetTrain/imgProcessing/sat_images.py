@@ -82,9 +82,9 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         print('Cannot find file.')
                 else:
                     if night:
-                        process_normal_image(img,'training',region,year,y,country,'mean','night')    
+                        process_normal_image(img,'training',region,year,y,country,replace_nan,'night')    
                     else:
-                        process_normal_image(img,'training',region,year,y,country,'mean','day')
+                        process_normal_image(img,'training',region,year,y,country,replace_nan,'day')
 
         elif region in val_split:
             if math.isnan(y):
@@ -111,9 +111,9 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         print('Cannot find file.')
                 else:
                     if night:
-                        process_normal_image(img,'validation',region,year,y,country,'mean','night')    
+                        process_normal_image(img,'validation',region,year,y,country,replace_nan,'night')    
                     else:
-                        process_normal_image(img,'validation',region,year,y,country,'mean','day')
+                        process_normal_image(img,'validation',region,year,y,country,replace_nan,'day')
 
         else:
             if math.isnan(y):
@@ -140,9 +140,9 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         print('Cannot find file.')
                 else:
                     if night:
-                        process_normal_image(img,'test',region,year,y,country,'mean','night')    
+                        process_normal_image(img,'test',region,year,y,country,replace_nan,'night')    
                     else:
-                        process_normal_image(img,'test',region,year,y,country,'mean','day')
+                        process_normal_image(img,'test',region,year,y,country,replace_nan,'day')
 
 #%%                
 # Process raw image to normal day/night image
