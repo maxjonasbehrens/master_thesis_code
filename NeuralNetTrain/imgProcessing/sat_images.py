@@ -48,6 +48,7 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
         region = f.rsplit('_',1)[0]
         year = int(f.rsplit('_',1)[1].rsplit('.',1)[0])
         y = y_dat.loc[(y_dat['nuts2']==region) & (y_dat['year']==year),prediction].values[0]
+        country = y_dat.loc[(y_dat['nuts2']==region) & (y_dat['year']==year),'country_value'].values[0] / np.max(y_dat['country_value']) * 256
 
         ds, img = pyrsgis.raster.read(str(path)+str(f))
         img = np.swapaxes(img,0,-1)
@@ -76,14 +77,14 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         img = resize(img, (resolution, resolution))
                         img_day = resize(img_day, (resolution, resolution))
 
-                        process_merged_image(img_day,img,'training',region,year,y)
+                        process_merged_image(img_day,img,'training',region,year,y,country)
                     except:
                         print('Cannot find file.')
                 else:
                     if night:
-                        process_normal_image(img,'training',region,year,y,'mean','night')    
+                        process_normal_image(img,'test',region,year,y,country,'mean','night')    
                     else:
-                        process_normal_image(img,'training',region,year,y,'mean','day')
+                        process_normal_image(img,'test',region,year,y,country,'mean','day')
 
         elif region in val_split:
             if math.isnan(y):
@@ -105,14 +106,14 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         img = resize(img, (resolution, resolution))
                         img_day = resize(img_day, (resolution, resolution))
 
-                        process_merged_image(img_day,img,'validation',region,year,y)
+                        process_merged_image(img_day,img,'validation',region,year,y,country)
                     except:
                         print('Cannot find file.')
                 else:
                     if night:
-                        process_normal_image(img,'validation',region,year,y,'mean','night')    
+                        process_normal_image(img,'test',region,year,y,country,'mean','night')    
                     else:
-                        process_normal_image(img,'validation',region,year,y,'mean','day')
+                        process_normal_image(img,'test',region,year,y,country,'mean','day')
 
         else:
             if math.isnan(y):
@@ -134,25 +135,27 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         img = resize(img, (resolution, resolution))
                         img_day = resize(img_day, (resolution, resolution))
 
-                        process_merged_image(img_day,img,'test',region,year,y)
+                        process_merged_image(img_day,img,'test',region,year,y,country)
                     except:
                         print('Cannot find file.')
                 else:
                     if night:
-                        process_normal_image(img,'test',region,year,y,'mean','night')    
+                        process_normal_image(img,'test',region,year,y,country,'mean','night')    
                     else:
-                        process_normal_image(img,'test',region,year,y,'mean','day')
+                        process_normal_image(img,'test',region,year,y,country,'mean','day')
 
 #%%                
 # Process raw image to normal day/night image
-def process_normal_image(img_array, region_type, region, year, y, replace_nan = 'mean', time = 'day'):
+def process_normal_image(img_array, region_type, region, year, y, country, replace_nan = 'mean', time = 'day'):
     
     if replace_nan == "mean":
-            img_array[np.isnan(img_array)] = round(np.nanmean(img_array),3)
+        img_array[np.isnan(img_array)] = round(np.nanmean(img_array),3)
     elif replace_nan == "normal":
         mu, sigma = np.nanmean(img_array), np.nanstd(img_array)
         n_nan = len(img_array[np.isnan(img_array)])
         img_array[np.isnan(img_array)] = np.random.normal(mu,sigma,n_nan)
+    elif replace_nan == 'country':
+        img_array[np.isnan(img_array)] = country
     else:
         img_array[np.isnan(img_array)] = 0.0
 
@@ -161,13 +164,24 @@ def process_normal_image(img_array, region_type, region, year, y, replace_nan = 
 
 
 # Process merged image to combine day and night
-def process_merged_image(img_day,img_night, region_type, region, year, y):
+def process_merged_image(img_day,img_night, region_type, region, year, y, country, replace_nan = "mean"):
 
     img = np.append(img_day,img_night,axis = 2)
 
     img[np.isnan(img)] = 0.0
     img[:,:,:2] = img[:,:,:2]/np.max(img[:,:,:2])
     img[:,:,3] = img[:,:,3]/np.max(img[:,:,3]) 
+
+    if replace_nan == "mean":
+        img[np.isnan(img)] = round(np.nanmean(img),3)
+    elif replace_nan == "normal":
+        mu, sigma = np.nanmean(img), np.nanstd(img)
+        n_nan = len(img[np.isnan(img)])
+        img[np.isnan(img)] = np.random.normal(mu,sigma,n_nan)
+    elif replace_nan == 'country':
+        img_array[np.isnan(img_array)] = country
+    else:
+        img[np.isnan(img)] = 0.0
 
     filepath = str(region_type)+'/merge/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
     imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img)
