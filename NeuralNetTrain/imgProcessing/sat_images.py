@@ -159,8 +159,12 @@ def process_normal_image(img_array, region_type, region, year, y, country, repla
     else:
         img_array[np.isnan(img_array)] = 0.0
 
-    filepath = str(region_type)+'/'+str(time)+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
-    imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img_array)
+    if replace_nan == 'country':
+        filepath = str(region_type)+'/'+str(time)+'_country/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+        imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img_array)
+    else:
+        filepath = str(region_type)+'/'+str(time)+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+        imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img_array)
 
 
 # Process merged image to combine day and night
@@ -183,8 +187,12 @@ def process_merged_image(img_day,img_night, region_type, region, year, y, countr
     else:
         img[np.isnan(img)] = 0.0
 
-    filepath = str(region_type)+'/merge/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
-    imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img)
+    if replace_nan == 'country':
+        filepath = str(region_type)+'/merge_country/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+        imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img)
+    else:    
+        filepath = str(region_type)+'/merge/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+        imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img)
 
 
 # Process subsample from raw image
