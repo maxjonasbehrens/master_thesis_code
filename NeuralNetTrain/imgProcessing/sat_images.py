@@ -78,7 +78,7 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         img = resize(img, (resolution, resolution))
                         img_day = resize(img_day, (resolution, resolution))
 
-                        process_merged_image(img_day,img,'training',region,year,y,country)
+                        process_merged_image(img_day,img,'training',region,year,y,country,replace_nan=replace_nan)
                     except:
                         print('Cannot find file.')
                 else:
@@ -107,7 +107,7 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         img = resize(img, (resolution, resolution))
                         img_day = resize(img_day, (resolution, resolution))
 
-                        process_merged_image(img_day,img,'validation',region,year,y,country)
+                        process_merged_image(img_day,img,'validation',region,year,y,country,replace_nan=replace_nan)
                     except:
                         print('Cannot find file.')
                 else:
@@ -136,7 +136,7 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         img = resize(img, (resolution, resolution))
                         img_day = resize(img_day, (resolution, resolution))
 
-                        process_merged_image(img_day,img,'test',region,year,y,country)
+                        process_merged_image(img_day,img,'test',region,year,y,country,replace_nan=replace_nan)
                     except:
                         print('Cannot find file.')
                 else:
