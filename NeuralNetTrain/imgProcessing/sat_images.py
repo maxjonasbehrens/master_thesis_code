@@ -171,6 +171,8 @@ def process_normal_image(img_array, region_type, region, year, y, country, repla
 # Process merged image to combine day and night
 def process_merged_image(img_day,img_night, region_type, region, year, y, country, replace_nan = "mean"):
 
+    img_night[np.isnan(img_night)] = 0.0
+
     if replace_nan == "mean":
         img_day[np.isnan(img_day)] = round(np.nanmean(img_day),3)
     elif replace_nan == "normal":
