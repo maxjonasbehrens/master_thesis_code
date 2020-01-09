@@ -53,7 +53,7 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
         img = np.swapaxes(img,0,-1)
         img = np.swapaxes(img,0,-2)
 
-        country = y_dat.loc[(y_dat['nuts2']==region) & (y_dat['year']==year),'country_value'].values[0] / y_dat['country_value'].max() * np.max(img)
+        country = y_dat.loc[(y_dat['nuts2']==region) & (y_dat['year']==year),'country_value'].values[0] / y_dat['country_value'].max() * np.nanmax(img)
 
         if kind != 'merge' and night:
             img = np.stack((img,)*3, axis = -1)
