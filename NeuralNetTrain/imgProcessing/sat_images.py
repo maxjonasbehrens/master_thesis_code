@@ -48,11 +48,12 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
         region = f.rsplit('_',1)[0]
         year = int(f.rsplit('_',1)[1].rsplit('.',1)[0])
         y = y_dat.loc[(y_dat['nuts2']==region) & (y_dat['year']==year),prediction].values[0]
-        country = y_dat.loc[(y_dat['nuts2']==region) & (y_dat['year']==year),'country_value'].values[0] / y_dat['country_value'].max() * 256
 
         ds, img = pyrsgis.raster.read(str(path)+str(f))
         img = np.swapaxes(img,0,-1)
         img = np.swapaxes(img,0,-2)
+
+        country = y_dat.loc[(y_dat['nuts2']==region) & (y_dat['year']==year),'country_value'].values[0] / y_dat['country_value'].max() * np.max(img)
 
         if kind != 'merge' and night:
             img = np.stack((img,)*3, axis = -1)
