@@ -171,18 +171,18 @@ def process_normal_image(img_array, region_type, region, year, y, country, repla
 # Process merged image to combine day and night
 def process_merged_image(img_day,img_night, region_type, region, year, y, country, replace_nan = "mean"):
 
-    img = np.append(img_day,img_night,axis = 2)
-
     if replace_nan == "mean":
-        img[np.isnan(img)] = round(np.nanmean(img),3)
+        img_day[np.isnan(img_day)] = round(np.nanmean(img_day),3)
     elif replace_nan == "normal":
-        mu, sigma = np.nanmean(img), np.nanstd(img)
-        n_nan = len(img[np.isnan(img)])
-        img[np.isnan(img)] = np.random.normal(mu,sigma,n_nan)
+        mu, sigma = np.nanmean(img_day), np.nanstd(img_day)
+        n_nan = len(img_day[np.isnan(img_day)])
+        img_day[np.isnan(img_day)] = np.random.normal(mu,sigma,n_nan)
     elif replace_nan == 'country':
-        img[np.isnan(img)] = country
+        img_day[np.isnan(img_day)] = country
     else:
-        img[np.isnan(img)] = 0.0
+        img_day[np.isnan(img_day)] = 0.0
+
+    img = np.append(img_day,img_night,axis = 2)
 
     img[:,:,:2] = img[:,:,:2]/np.max(img[:,:,:2])
     img[:,:,3] = img[:,:,3]/np.max(img[:,:,3])
