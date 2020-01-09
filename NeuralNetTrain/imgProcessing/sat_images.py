@@ -157,11 +157,16 @@ def process_normal_image(img_array, region_type, region, year, y, country, repla
         img_array[np.isnan(img_array)] = np.random.normal(mu,sigma,n_nan)
     elif replace_nan == 'country':
         img_array[np.isnan(img_array)] = country
+    elif replace_nan == 'country_tot':
+        img_array[np.isnan(img_array)] = 0.0
+        img_array = img_array / country
     else:
         img_array[np.isnan(img_array)] = 0.0
 
-    if replace_nan == 'country':
-        filepath = str(region_type)+'/'+str(time)+'_country/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+    #img_array = img_array[:,:,:2]
+
+    if replace_nan == 'country' or replace_nan == 'country_tot':
+        filepath = str(region_type)+'/'+str(time)+'_'+replace_nan+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
         imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img_array)
     else:
         filepath = str(region_type)+'/'+str(time)+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
@@ -181,6 +186,9 @@ def process_merged_image(img_day,img_night, region_type, region, year, y, countr
         img_day[np.isnan(img_day)] = np.random.normal(mu,sigma,n_nan)
     elif replace_nan == 'country':
         img_day[np.isnan(img_day)] = country
+    elif replace_nan == 'country_tot':
+        img_day[np.isnan(img_day)] = 0.0
+        img_day = img_day / country
     else:
         img_day[np.isnan(img_day)] = 0.0
 
@@ -189,8 +197,8 @@ def process_merged_image(img_day,img_night, region_type, region, year, y, countr
     img[:,:,:2] = img[:,:,:2]/np.max(img[:,:,:2])
     img[:,:,3] = img[:,:,3]/np.max(img[:,:,3])
 
-    if replace_nan == 'country':
-        filepath = str(region_type)+'/merge_country/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+    if replace_nan == 'country' or replace_nan == 'country_tot':
+        filepath = str(region_type)+'/merge_'+replace_nan+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
         imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img)
     else:    
         filepath = str(region_type)+'/merge/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
