@@ -173,10 +173,6 @@ def process_merged_image(img_day,img_night, region_type, region, year, y, countr
 
     img = np.append(img_day,img_night,axis = 2)
 
-    img[np.isnan(img)] = 0.0
-    img[:,:,:2] = img[:,:,:2]/np.max(img[:,:,:2])
-    img[:,:,3] = img[:,:,3]/np.max(img[:,:,3]) 
-
     if replace_nan == "mean":
         img[np.isnan(img)] = round(np.nanmean(img),3)
     elif replace_nan == "normal":
@@ -187,6 +183,9 @@ def process_merged_image(img_day,img_night, region_type, region, year, y, countr
         img[np.isnan(img)] = country
     else:
         img[np.isnan(img)] = 0.0
+
+    img[:,:,:2] = img[:,:,:2]/np.max(img[:,:,:2])
+    img[:,:,3] = img[:,:,3]/np.max(img[:,:,3])
 
     if replace_nan == 'country':
         filepath = str(region_type)+'/merge_country/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
