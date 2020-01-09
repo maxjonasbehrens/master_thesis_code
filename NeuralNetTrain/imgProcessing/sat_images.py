@@ -184,7 +184,7 @@ def process_merged_image(img_day,img_night, region_type, region, year, y, countr
         n_nan = len(img[np.isnan(img)])
         img[np.isnan(img)] = np.random.normal(mu,sigma,n_nan)
     elif replace_nan == 'country':
-        img_array[np.isnan(img_array)] = country
+        img[np.isnan(img)] = country
     else:
         img[np.isnan(img)] = 0.0
 
