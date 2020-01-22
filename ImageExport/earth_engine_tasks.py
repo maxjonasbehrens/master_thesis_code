@@ -10,11 +10,11 @@ ee.Initialize()
 
 #%%
 # Use these bands for prediction.
-bands = ['B1','B2','B3']
-#bands = ['avg_vis']
+#bands = ['B1','B2','B3']
+bands = ['avg_vis']
 # Satellite data
-sat_dat = 'LANDSAT/LE07/C01/T1_SR' # Daytime images (From 1999 to Present)
-#sat_dat = 'NOAA/DMSP-OLS/NIGHTTIME_LIGHTS' # Night images (From 1992 to 2014)
+#sat_dat = 'LANDSAT/LE07/C01/T1_SR' # Daytime images (From 1999 to Present)
+sat_dat = 'NOAA/DMSP-OLS/NIGHTTIME_LIGHTS' # Night images (From 1992 to 2014)
 
 # Use Set Images
 l8sr = ee.ImageCollection(sat_dat)
@@ -31,12 +31,21 @@ def maskL8sr(image):
 
 #%%
 # Open the geojson of NUTS 2 regions to get the coordinates of the regions
-with open("Data/geo_data/NUTS_RG_01M_2016_4326_LEVL_2.geojson") as f:
-    nuts2_poly = json.load(f)
+with open("/Users/maxbehrens/Documents/Msc/Thesis/Data/geo_data_2016/NUTS_RG_01M_2016_4326_LEVL_2.geojson") as f:
+    nuts2_poly_2016 = json.load(f)
+
+with open("/Users/maxbehrens/Documents/Msc/Thesis/Data/geo_data_2013/NUTS_RG_01M_2013_4326_LEVL_2.geojson") as f:
+    nuts2_poly_2013 = json.load(f)
+
+with open("/Users/maxbehrens/Documents/Msc/Thesis/Data/geo_data_2010/NUTS_RG_01M_2010_4326_LEVL_2.geojson") as f:
+    nuts2_poly_2010 = json.load(f)
+
+with open("/Users/maxbehrens/Documents/Msc/Thesis/Data/geo_data_2006/NUTS_RG_01M_2006_4326_LEVL_2.geojson") as f:
+    nuts2_poly_2006 = json.load(f)
 
 #%%
 # Get the cleaned GDP data to match with regions and download correct data
-gdp_data = pd.read_csv('Data/gdp_data/nuts_gdp_cleaned.csv')
+gdp_data = pd.read_csv('/Users/maxbehrens/Documents/Msc/Thesis/Data/gdp_data/nuts_gdp_cleaned.csv')
 gdp_data.head()
 
 #%%
@@ -49,58 +58,140 @@ imageExportFormatOptions = {
 
 #%%
 # Test logic
-gdp_data[gdp_data['region']==nuts2_poly['features'][21]['properties']['NUTS_ID']]
+gdp_data[gdp_data['region']==nuts2_poly_2006['features'][42]['properties']['NUTS_ID']]
 
 #%%
 # Test the json structure
-nuts2_poly['features'][331]['properties']
+len(nuts2_poly_2016['features'])#[331]['properties']
 
 #%%
 # Download the data from Earth Engine and save into Google Drive
+folder = 'nuts_night'
+scale = 80
+
 regions = []
 years = []
 gdp_values = []
-for i in range(51):
-    if nuts2_poly['features'][i]['properties']['NUTS_ID'] not in gdp_data['region'].values:
-        print(str(i)+': Not in regions.')
-    elif nuts2_poly['features'][i]['geometry']['type'] == 'MultiPolygon':
-        print(str(i)+': MultiPolygon.')
+
+for index, row in gdp_data.iloc[2021:].iterrows():
+    
+    if row['year'] < 2012:
+        for i in range(len(nuts2_poly_2006['features'])):
+            if row['region'] == nuts2_poly_2006['features'][i]['properties']['NUTS_ID']:
+                if nuts2_poly_2006['features'][i]['geometry']['type'] == 'MultiPolygon':
+                    print(str(row['region'])+': MultiPolygon.')
+                else: 
+                    t = nuts2_poly_2006['features'][i]['geometry']['coordinates']
+                    region = nuts2_poly_2006['features'][i]['properties']['NUTS_ID']
+                    area_name = row['region']+'_'+str(row['year'])
+
+                    region = ee.Geometry.Polygon(t)
+                    dataset = ee.ImageCollection(sat_dat) \
+                        .filterBounds(region) \
+                        .filterDate((str(row['year'])+'-01-01'),(str(row['year'])+'-12-31')) \
+                        .select(bands) 
+                        #.map(maskL8sr) \ 
+                    dataset = dataset.reduce('mean')
+                    task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
+                                            description=area_name,
+                                            folder=folder,
+                                            region=region['coordinates'],
+                                            scale=scale,
+                                            fileFormat='GeoTIFF',
+                                            maxPixels= 3784216672400,
+                                            skipEmptyTiles=True)
+
+                    task.start()
+                    
+                    regions.append(region)
+                    years.append(row['year'])
+                    gdp_values.append(row['value'])
+                    print(str(row['region'])+': '+row['region']+str(row['year'])+' will be downloaded.')
+
+    
+    elif row['year'] < 2015:
+        for i in range(len(nuts2_poly_2010['features'])):
+            if row['region'] == nuts2_poly_2010['features'][i]['properties']['NUTS_ID']:
+                if nuts2_poly_2010['features'][i]['geometry']['type'] == 'MultiPolygon':
+                    print(str(row['region'])+': MultiPolygon.')
+                else: 
+                    t = nuts2_poly_2010['features'][i]['geometry']['coordinates']
+                    region = nuts2_poly_2010['features'][i]['properties']['NUTS_ID']
+                    area_name = row['region']+'_'+str(row['year'])
+
+                    region = ee.Geometry.Polygon(t)
+                    dataset = ee.ImageCollection(sat_dat) \
+                        .filterBounds(region) \
+                        .filterDate((str(row['year'])+'-01-01'),(str(row['year'])+'-12-31')) \
+                        .select(bands)
+                        #.map(maskL8sr) \        
+                    dataset = dataset.reduce('mean')
+                    task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
+                                            description=area_name,
+                                            folder=folder,
+                                            region=region['coordinates'],
+                                            scale=scale,
+                                            fileFormat='GeoTIFF',
+                                            maxPixels= 3784216672400,
+                                            skipEmptyTiles=True)
+
+                    task.start()
+                    
+                    regions.append(region)
+                    years.append(row['year'])
+                    gdp_values.append(row['value'])
+                    print(str(row['region'])+': '+row['region']+str(row['year'])+' will be downloaded.')
+
+    # Only for night
     else:
-        t = nuts2_poly['features'][i]['geometry']['coordinates']
-        region = nuts2_poly['features'][i]['properties']['NUTS_ID']
-        for index, row in gdp_data[gdp_data['region']==nuts2_poly['features'][i]['properties']['NUTS_ID']].iterrows():
-            area_name = row['region']+'_'+str(row['year'])
-            #if row['year'] >= 2014:
-            #    print('After 2014')
-            # Used if data was not fully downloaded
-            #if area_name in files:
-            #    print('Already Downloaded.')
-            if 1 == 0: # For day images (no if clause)
-                pass
-            else:
-                region = ee.Geometry.Polygon(t)
-                dataset = ee.ImageCollection(sat_dat) \
-                    .filterBounds(region) \
-                    .filterDate((str(row['year'])+'-01-01'),(str(row['year'])+'-12-31')) \
-                    .map(maskL8sr) \
-                    .select(bands)        
-                dataset = dataset.reduce('mean')
-                task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
-                                        description=area_name,
-                                        folder="nuts_day_raw",
-                                        region=region['coordinates'],
-                                        scale=30,
-                                        fileFormat='GeoTIFF',
-                                        maxPixels= 3784216672400,
-                                        skipEmptyTiles=True)
+        pass
 
-                task.start()
-                
-                regions.append(region)
-                years.append(row['year'])
-                gdp_values.append(row['value'])
-                print(str(i)+': '+row['region']+str(row['year'])+' will be downloaded.')
+    """ if row['year'] > 2018:
+        for i in range(len(nuts2_poly_2013['features'])+1):
+            if row['region'] == nuts2_poly_2013['features'][i]['properties']['NUTS_ID']:
+                if nuts2_poly_2013['features'][i]['geometry']['type'] == 'MultiPolygon':
+                    print(str(i)+': MultiPolygon.')
+                else:    
+                    t = nuts2_poly_2013['features'][i]['geometry']['coordinates']
+                    region = nuts2_poly_2013['features'][i]['properties']['NUTS_ID']
+                    area_name = row['region']+'_'+str(row['year'])
+
+                    region = ee.Geometry.Polygon(t)
+                    dataset = ee.ImageCollection(sat_dat) \
+                        .filterBounds(region) \
+                        .filterDate((str(row['year'])+'-01-01'),(str(row['year'])+'-12-31')) \
+                        #.map(maskL8sr) \
+                        #.select(bands)        
+                    dataset = dataset.reduce('mean')
+                    task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
+                                            description=area_name,
+                                            folder=folder,
+                                            region=region['coordinates'],
+                                            scale=scale,
+                                            fileFormat='GeoTIFF',
+                                            maxPixels= 3784216672400,
+                                            skipEmptyTiles=True)
+
+                    task.start()
+                    
+                    regions.append(region)
+                    years.append(row['year'])
+                    gdp_values.append(row['value'])
+                    print(str(row['region'])+': '+row['region']+str(row['year'])+' will be downloaded.') """
 
 
+# %%
+for i in range(len(nuts2_poly_2006['features'])):
+    print(nuts2_poly_2006['features'][i]['properties']['NUTS_ID'])
+
+# %%
+i = 0
+for index, row in gdp_data.iterrows():
+    if row['year'] < 2015 and len(row['region']) > 2:
+        i += 1
+    else:
+        pass
+
+print(i)
 
 # %%
