@@ -23,10 +23,13 @@ dat$country <- as.factor(dat$country)
 dat[dat$country_value == max(dat$country_value),]
 
 # No. of regions per country
-dat %>% 
+country_count <- dat %>% 
   group_by(country) %>% 
   summarise(distinct_regions = n_distinct(nuts2)) %>% 
   arrange(desc(distinct_regions))
+
+country_count
+sum(country_count$distinct_regions)
 
 # Visualisation -----------------------------------------------------------
 
