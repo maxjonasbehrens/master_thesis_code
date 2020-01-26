@@ -28,8 +28,15 @@ country_count <- dat %>%
   summarise(distinct_regions = n_distinct(nuts2)) %>% 
   arrange(desc(distinct_regions))
 
+stargazer::stargazer(country_count, summary = FALSE)
+
 country_count
 sum(country_count$distinct_regions)
+
+dat %>% 
+  group_by(year) %>% 
+  summarise(distinct_regions = n_distinct(nuts2)) %>% 
+  arrange(desc(distinct_regions))
 
 # Visualisation -----------------------------------------------------------
 
