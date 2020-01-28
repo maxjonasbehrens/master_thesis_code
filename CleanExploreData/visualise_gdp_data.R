@@ -12,10 +12,12 @@ dat <- enhanced_gdp_data
 
 # Basic data manipulation
 dat$nuts2 <- as.factor(dat$nuts2)
-dat$year <- as.factor(dat$year)
+#dat$year <- as.factor(dat$year)
 dat$code <- as.factor(dat$code)
 dat$country <- as.factor(dat$country)
 
+# Available data
+nrow(dat[dat$year<2014,])
 
 # Basic Data Exploration --------------------------------------------------
 
