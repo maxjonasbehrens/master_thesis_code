@@ -17,7 +17,7 @@ dat$code <- as.factor(dat$code)
 dat$country <- as.factor(dat$country)
 
 # Available data
-nrow(dat[dat$year<2014,])
+nrow(dat[dat$year>2014,])
 
 # Basic Data Exploration --------------------------------------------------
 
