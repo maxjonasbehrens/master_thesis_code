@@ -205,12 +205,20 @@ def process_merged_image(img_day,img_night, region_type, region, year, y, countr
     img[:,:,:2] = img[:,:,:2]/np.max(img[:,:,:2])
     img[:,:,3] = img[:,:,3]/np.max(img[:,:,3])
 
-    if replace_nan == 'country' or replace_nan == 'country_tot':
-        filepath = str(region_type)+'/merge_'+replace_nan+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
-        imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img)
-    else:    
-        filepath = str(region_type)+'/merge/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
-        imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img)
+    if year > 2013:
+        if replace_nan == 'country' or replace_nan == 'country_tot':
+            filepath = str(region_type)+'/viirs_merge_'+replace_nan+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img)
+        else:    
+            filepath = str(region_type)+'/merge/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img)
+    else:
+        if replace_nan == 'country' or replace_nan == 'country_tot':
+            filepath = str(region_type)+'/viirs_merge_'+replace_nan+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img)
+        else:    
+            filepath = str(region_type)+'/merge/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img)
 
 
 # Process subsample from raw image
