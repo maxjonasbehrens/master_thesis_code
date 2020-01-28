@@ -165,12 +165,20 @@ def process_normal_image(img_array, region_type, region, year, y, country, repla
 
     #img_array = img_array[:,:,:2]
 
-    if replace_nan == 'country' or replace_nan == 'country_tot':
-        filepath = str(region_type)+'/'+str(time)+'_'+replace_nan+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
-        imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img_array)
+    if year > 2013:
+        if replace_nan == 'country' or replace_nan == 'country_tot':
+            filepath = str(region_type)+'/viirs_'+str(time)+'_'+replace_nan+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img_array)
+        else:
+            filepath = str(region_type)+'/viirs_'+str(time)+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img_array)
     else:
-        filepath = str(region_type)+'/'+str(time)+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
-        imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img_array)
+        if replace_nan == 'country' or replace_nan == 'country_tot':
+            filepath = str(region_type)+'/'+str(time)+'_'+replace_nan+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img_array)
+        else:
+            filepath = str(region_type)+'/'+str(time)+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img_array)
 
 
 # Process merged image to combine day and night
