@@ -96,21 +96,18 @@ regions = []
 years = []
 gdp_values = []
 
-for index, row in gdp_data.iloc[2800:].iterrows():
+for index, row in gdp_data.iloc[3745:].iterrows():
     
-    if row['year'] < 2014:
-        pass
-
-    elif row['year'] < 2015:
-        for i in range(len(nuts2_poly_2010['features'])):
-            if row['region'] == nuts2_poly_2010['features'][i]['properties']['NUTS_ID']:
+    if row['year'] >= 2014:
+        for i in range(len(nuts2_poly_2016['features'])):
+            if row['region'] == nuts2_poly_2016['features'][i]['properties']['NUTS_ID']:
                 
-                if nuts2_poly_2010['features'][i]['geometry']['type'] == 'MultiPolygon':
-                    t = nuts2_poly_2010['features'][i]['geometry']['coordinates'][0]
+                if nuts2_poly_2016['features'][i]['geometry']['type'] == 'MultiPolygon':
+                    t = nuts2_poly_2016['features'][i]['geometry']['coordinates'][0]
                 else:    
-                    t = nuts2_poly_2010['features'][i]['geometry']['coordinates']
+                    t = nuts2_poly_2016['features'][i]['geometry']['coordinates']
 
-                region = nuts2_poly_2010['features'][i]['properties']['NUTS_ID']
+                region = nuts2_poly_2016['features'][i]['properties']['NUTS_ID']
                 area_name = row['region']+'_'+str(row['year'])
                 region = ee.Geometry.Polygon(t)
                 
@@ -136,78 +133,9 @@ for index, row in gdp_data.iloc[2800:].iterrows():
                 gdp_values.append(row['value'])
                 print(str(row['region'])+': '+row['region']+str(row['year'])+' will be downloaded.')
 
-    
-    elif row['year'] < 2018:
-        for i in range(len(nuts2_poly_2013['features'])):
-            if row['region'] == nuts2_poly_2013['features'][i]['properties']['NUTS_ID']:
-    
-                if nuts2_poly_2013['features'][i]['geometry']['type'] == 'MultiPolygon':
-                    t = nuts2_poly_2013['features'][i]['geometry']['coordinates'][0]
-                else:    
-                    t = nuts2_poly_2013['features'][i]['geometry']['coordinates']
-
-                region = nuts2_poly_2013['features'][i]['properties']['NUTS_ID']
-                area_name = row['region']+'_'+str(row['year'])
-                region = ee.Geometry.Polygon(t)
-
-                dataset = ee.ImageCollection(sat_dat) \
-                    .filterBounds(region) \
-                    .filterDate((str(row['year'])+'-01-01'),(str(row['year'])+'-12-31')) \
-                    .select(bands)
-                    #.map(maskL8sr) \        
-                dataset = dataset.reduce('mean')
-                task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
-                                        description=area_name,
-                                        folder=folder,
-                                        region=region['coordinates'],
-                                        scale=scale,
-                                        fileFormat='GeoTIFF',
-                                        maxPixels= 3784216672400,
-                                        skipEmptyTiles=True)
-
-                task.start()
-                
-                regions.append(region)
-                years.append(row['year'])
-                gdp_values.append(row['value'])
-                print(str(row['region'])+': '+row['region']+str(row['year'])+' will be downloaded.')
-
     # Only for night
     else:
         pass
-
-    """ if row['year'] > 2018:
-        for i in range(len(nuts2_poly_2013['features'])+1):
-            if row['region'] == nuts2_poly_2013['features'][i]['properties']['NUTS_ID']:
-                if nuts2_poly_2013['features'][i]['geometry']['type'] == 'MultiPolygon':
-                    print(str(i)+': MultiPolygon.')
-                else:    
-                    t = nuts2_poly_2013['features'][i]['geometry']['coordinates']
-                    region = nuts2_poly_2013['features'][i]['properties']['NUTS_ID']
-                    area_name = row['region']+'_'+str(row['year'])
-
-                    region = ee.Geometry.Polygon(t)
-                    dataset = ee.ImageCollection(sat_dat) \
-                        .filterBounds(region) \
-                        .filterDate((str(row['year'])+'-01-01'),(str(row['year'])+'-12-31')) \
-                        #.map(maskL8sr) \
-                        #.select(bands)        
-                    dataset = dataset.reduce('mean')
-                    task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
-                                            description=area_name,
-                                            folder=folder,
-                                            region=region['coordinates'],
-                                            scale=scale,
-                                            fileFormat='GeoTIFF',
-                                            maxPixels= 3784216672400,
-                                            skipEmptyTiles=True)
-
-                    task.start()
-                    
-                    regions.append(region)
-                    years.append(row['year'])
-                    gdp_values.append(row['value'])
-                    print(str(row['region'])+': '+row['region']+str(row['year'])+' will be downloaded.') """
 
 
 # %%
