@@ -89,8 +89,8 @@ len(nuts2_poly_2016['features'])#[331]['properties']
 
 #%%
 # Download the data from Earth Engine and save into Google Drive
-folder = 'nuts_viirs'
-scale = 80
+folder = 'nuts_viirs_single'
+scale = 70
 
 regions = []
 years = []
