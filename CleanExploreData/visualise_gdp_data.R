@@ -28,7 +28,7 @@ dat[dat$country_value == max(dat$country_value),]
 country_count <- dat %>% 
   group_by(country) %>% 
   summarise(distinct_regions = n_distinct(nuts2)) %>% 
-  arrange(desc(distinct_regions))
+  arrange(distinct_regions)
 
 stargazer::stargazer(country_count, summary = FALSE)
 
