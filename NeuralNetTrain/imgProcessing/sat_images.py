@@ -12,8 +12,14 @@ from os.path import isfile, join
 #%%
 def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,replace_nan = 'mean', resolution = 256, night = True, test_size = 0.2):
     
-    files = [f for f in listdir(path) if isfile(join(path, f))]
-    
+    general_ban = ["SE","FI","NO","BE"]
+    country_ban = ["CY","EE","LU","LV","ME","MK","MT","HR","LT","SI"]
+
+    if "country" in replace_nan:
+        files = [f for f in listdir(path) if isfile(join(path, f)) and f[:2] not in general_ban and f[:2] not in country_ban]
+    else:
+        files = [f for f in listdir(path) if isfile(join(path, f)) and f[:2] not in general_ban]
+
     np.random.seed(42)
 
     # Create list of unique regions
@@ -29,7 +35,7 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
     train_split = regions[~msk_test]
     test_split = regions[msk_test]
 
-    msk_val = np.random.rand(len(train_split)) < (test_size+0.05)
+    msk_val = np.random.rand(len(train_split)) < 0.25
 
     val_split = train_split[msk_val]
     train_split = train_split[~msk_val]
