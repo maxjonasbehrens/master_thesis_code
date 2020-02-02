@@ -10,6 +10,94 @@ from os import listdir
 from os.path import isfile, join
 
 #%%
+def create_time_data(path, y_dat,replace_nan,test_size = 0.2):
+
+    general_ban = ["SE","FI","NO","BE"]
+    files = [f for f in listdir(path) if isfile(join(path, f)) and f[:2] not in general_ban]
+
+    np.random.seed(42)
+
+    # Create list of unique regions
+    regions = []
+    for i in range(len(files)):
+        regions.append(files[i].rsplit('_',1)[0])
+
+    regions = np.unique(regions)
+
+    # Split regions into train and test set
+    msk_test = np.random.rand(len(regions)) < test_size
+
+    train_split = regions[~msk_test]
+    test_split = regions[msk_test]
+
+    msk_val = np.random.rand(len(train_split)) < 0.25
+
+    val_split = train_split[msk_val]
+    train_split = train_split[~msk_val]
+
+    i = 0
+
+    for region in regions:
+
+        if i % 10 == 0:
+            print("Region processed: ",str(i)," of ",str(len(regions)))
+
+        ds, img14 = pyrsgis.raster.read(str(path)+str(region+'_2014.tif'))
+        img14 = np.swapaxes(img,0,-1)
+        img14 = np.swapaxes(img,0,-2)
+        img14[np.isnan(img14)] = round(np.nanmean(img14),3)
+
+        ds, img15 = pyrsgis.raster.read(str(path)+str(region+'_2015.tif'))
+        img15 = np.swapaxes(img,0,-1)
+        img15 = np.swapaxes(img,0,-2)
+        img15[np.isnan(img15)] = round(np.nanmean(img15),3)
+
+        ds, img16 = pyrsgis.raster.read(str(path)+str(region+'_2016.tif'))
+        img16 = np.swapaxes(img,0,-1)
+        img16 = np.swapaxes(img,0,-2)
+        img16[np.isnan(img16)] = round(np.nanmean(img16),3)
+
+        ds, img17 = pyrsgis.raster.read(str(path)+str(region+'_2017.tif'))
+        img17 = np.swapaxes(img,0,-1)
+        img17 = np.swapaxes(img,0,-2)
+        img17[np.isnan(img17)] = round(np.nanmean(img17),3)
+
+        img1415 = img15-img14
+        img1516 = img16-img15
+        img1617 = img17-img16
+
+        if region in train_split:
+            filepath = 'training/viirs_time/'+str(region)+'_1415.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img1415)
+
+            filepath = 'training/viirs_time/'+str(region)+'_1516.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img1516)
+
+            filepath = 'training/viirs_time/'+str(region)+'_1617.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img1617)
+        
+        if region in val_split:
+            filepath = 'validation/viirs_time/'+str(region)+'_1415.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img1415)
+
+            filepath = 'validation/viirs_time/'+str(region)+'_1516.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img1516)
+
+            filepath = 'validation/viirs_time/'+str(region)+'_1617.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img1617)
+        
+        if region in test_split:
+            filepath = 'test/viirs_time/'+str(region)+'_1415.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img1415)
+
+            filepath = 'test/viirs_time/'+str(region)+'_1516.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img1516)
+
+            filepath = 'test/viirs_time/'+str(region)+'_1617.png'
+            imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img1617)
+
+
+#%%
 def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,replace_nan = 'mean', resolution = 256, night = True, test_size = 0.2):
     
     general_ban = ["SE","FI","NO","BE"]
