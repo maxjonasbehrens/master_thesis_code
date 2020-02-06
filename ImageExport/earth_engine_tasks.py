@@ -89,14 +89,14 @@ len(nuts2_poly_2016['features'])#[331]['properties']
 
 #%%
 # Download the data from Earth Engine and save into Google Drive
-folder = 'nuts_viirs_single'
-scale = 70
+folder = 'nuts_viirs'
+scale = 30
 
 regions = []
 years = []
 gdp_values = []
 
-for index, row in gdp_data.iloc[3745:].iterrows():
+for index, row in gdp_data.iloc[3163:].iterrows():
     
     if row['year'] >= 2014:
         for i in range(len(nuts2_poly_2016['features'])):
@@ -132,7 +132,7 @@ for index, row in gdp_data.iloc[3745:].iterrows():
                 years.append(row['year'])
                 gdp_values.append(row['value'])
                 print(str(row['region'])+': '+row['region']+str(row['year'])+' will be downloaded.')
-
+                print(index,' out of ',len(gdp_data))
     # Only for night
     else:
         pass
