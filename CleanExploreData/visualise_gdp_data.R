@@ -26,7 +26,7 @@ dat[dat$country_value == max(dat$country_value),]
 
 # No. of regions per country
 country_count <- dat %>% 
-  group_by(code) %>% 
+  group_by(country) %>% 
   summarise(distinct_regions = n_distinct(nuts2)) %>% 
   arrange(distinct_regions)
 
