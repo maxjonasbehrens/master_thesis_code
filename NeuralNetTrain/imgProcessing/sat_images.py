@@ -250,8 +250,10 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
 # Process raw image to normal day/night image
 def process_normal_image(img_array, region_type, region, year, y, country, replace_nan = 'mean', time = 'day'):
     
+    mean = np.nanmean(img_array)
+
     if replace_nan == "mean":
-        img_array[np.isnan(img_array)] = round(np.nanmean(img_array),3)
+        img_array[np.isnan(img_array)] = round(mean,3)
     elif replace_nan == "normal":
         mu, sigma = np.nanmean(img_array), np.nanstd(img_array)
         n_nan = len(img_array[np.isnan(img_array)])
@@ -264,21 +266,19 @@ def process_normal_image(img_array, region_type, region, year, y, country, repla
     else:
         img_array[np.isnan(img_array)] = 0.0
 
-    #img_array = img_array[:,:,:2]
-
     if year > 2013:
         if replace_nan == 'country' or replace_nan == 'country_tot':
-            filepath = str(region_type)+'/viirs_'+str(time)+'_'+replace_nan+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+            filepath = str(region_type)+'/viirs_'+str(time)+'_'+replace_nan+'/'+str(region)+'_'+str(mean)+'_'+str(year)+'.png'
             imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img_array)
         else:
-            filepath = str(region_type)+'/viirs_'+str(time)+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+            filepath = str(region_type)+'/viirs_'+str(time)+'/'+str(region)+'_'+str(mean)+'_'+str(year)+'.png'
             imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img_array)
     else:
         if replace_nan == 'country' or replace_nan == 'country_tot':
-            filepath = str(region_type)+'/'+str(time)+'_'+replace_nan+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+            filepath = str(region_type)+'/'+str(time)+'_'+replace_nan+'/'+str(region)+'_'+str(mean)+'_'+str(year)+'.png'
             imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img_array)
         else:
-            filepath = str(region_type)+'/'+str(time)+'/'+str(region)+'_'+str(y)+'_'+str(year)+'.png'
+            filepath = str(region_type)+'/'+str(time)+'/'+str(region)+'_'+str(mean)+'_'+str(year)+'.png'
             imageio.imwrite('/gdrive/My Drive/ThesisData/'+filepath, img_array)
 
 
