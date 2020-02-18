@@ -152,6 +152,8 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
         img = np.swapaxes(img,0,-1)
         img = np.swapaxes(img,0,-2)
 
+        mean = np.nanmean(img)
+
         img = resize(img, (resolution, resolution))
 
         country = y_dat.loc[(y_dat['nuts2']==region) & (y_dat['year']==year),'country_value'].values[0] / y_dat['country_value'].max() * np.nanmax(img)
@@ -184,9 +186,9 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         print('Cannot find file.')
                 else:
                     if night:
-                        process_normal_image(img,'training',region,year,y,country,replace_nan,'night')    
+                        process_normal_image(img,'training',region,year,y,country,mean,replace_nan,'night')    
                     else:
-                        process_normal_image(img,'training',region,year,y,country,replace_nan,'day')
+                        process_normal_image(img,'training',region,year,y,country,mean,replace_nan,'day')
 
         elif region in val_split:
             if math.isnan(y):
@@ -213,9 +215,9 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         print('Cannot find file.')
                 else:
                     if night:
-                        process_normal_image(img,'validation',region,year,y,country,replace_nan,'night')    
+                        process_normal_image(img,'validation',region,year,y,country,mean,replace_nan,'night')    
                     else:
-                        process_normal_image(img,'validation',region,year,y,country,replace_nan,'day')
+                        process_normal_image(img,'validation',region,year,y,country,mean,replace_nan,'day')
 
         else:
             if math.isnan(y):
@@ -242,18 +244,16 @@ def create_save_data(path,y_dat,prediction,kind = 'normal',alt_path = None,repla
                         print('Cannot find file.')
                 else:
                     if night:
-                        process_normal_image(img,'test',region,year,y,country,replace_nan,'night')    
+                        process_normal_image(img,'test',region,year,y,country,mean,replace_nan,'night')    
                     else:
-                        process_normal_image(img,'test',region,year,y,country,replace_nan,'day')
+                        process_normal_image(img,'test',region,year,y,country,mean,replace_nan,'day')
 
 #%%                
 # Process raw image to normal day/night image
-def process_normal_image(img_array, region_type, region, year, y, country, replace_nan = 'mean', time = 'day'):
-    
-    mean = np.nanmean(img_array)
+def process_normal_image(img_array, region_type, region, year, y, country, mean, replace_nan = 'mean', time = 'day'):
 
     if replace_nan == "mean":
-        img_array[np.isnan(img_array)] = round(mean,3)
+        img_array[np.isnan(img_array)] = mean
     elif replace_nan == "normal":
         mu, sigma = np.nanmean(img_array), np.nanstd(img_array)
         n_nan = len(img_array[np.isnan(img_array)])
