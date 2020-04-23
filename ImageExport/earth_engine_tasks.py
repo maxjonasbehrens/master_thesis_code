@@ -1,3 +1,9 @@
+# Script to download Satellite Data from Earth Engine
+
+'''
+The download from Earth Engine is very slow and may take a few days for all regions.
+'''
+
 #%%
 # Import libraries
 import ee
@@ -12,6 +18,7 @@ ee.Initialize()
 # Use these bands for prediction.
 #bands = ['B1','B2','B3']
 bands = ['avg_rad']
+
 # Satellite data
 #sat_dat = 'LANDSAT/LE07/C01/T1_SR' # Daytime images (From 1999 to Present)
 #sat_dat = 'NOAA/DMSP-OLS/NIGHTTIME_LIGHTS' # Night images (From 1992 to 2014)
@@ -35,14 +42,16 @@ def maskL8sr(image):
 with open("/Users/maxbehrens/Documents/Msc/Thesis/Data/geo_data_2016/NUTS_RG_01M_2016_4326_LEVL_2.geojson") as f:
     nuts2_poly_2016 = json.load(f)
 
-with open("/Users/maxbehrens/Documents/Msc/Thesis/Data/geo_data_2013/NUTS_RG_01M_2013_4326_LEVL_2.geojson") as f:
-    nuts2_poly_2013 = json.load(f)
+# Other are not used since NUTS 2016 is the valid classification
 
-with open("/Users/maxbehrens/Documents/Msc/Thesis/Data/geo_data_2010/NUTS_RG_01M_2010_4326_LEVL_2.geojson") as f:
-    nuts2_poly_2010 = json.load(f)
+#with open("/Users/maxbehrens/Documents/Msc/Thesis/Data/geo_data_2013/NUTS_RG_01M_2013_4326_LEVL_2.geojson") as f:
+#    nuts2_poly_2013 = json.load(f)
 
-with open("/Users/maxbehrens/Documents/Msc/Thesis/Data/geo_data_2006/NUTS_RG_01M_2006_4326_LEVL_2.geojson") as f:
-    nuts2_poly_2006 = json.load(f)
+#with open("/Users/maxbehrens/Documents/Msc/Thesis/Data/geo_data_2010/NUTS_RG_01M_2010_4326_LEVL_2.geojson") as f:
+#    nuts2_poly_2010 = json.load(f)
+
+#with open("/Users/maxbehrens/Documents/Msc/Thesis/Data/geo_data_2006/NUTS_RG_01M_2006_4326_LEVL_2.geojson") as f:
+#    nuts2_poly_2006 = json.load(f)
 
 #%%
 # Identify number of multipolygons
@@ -89,34 +98,52 @@ len(nuts2_poly_2016['features'])#[331]['properties']
 
 #%%
 # Download the data from Earth Engine and save into Google Drive
+
+# The Drive Folder to which the images will be saved
 folder = 'nuts_viirs'
+
+# Scale of images (the higher, the smaller the resolution)
 scale = 30
 
+# Empty Lists to be filled
 regions = []
 years = []
 gdp_values = []
 
-for index, row in gdp_data.iloc[3163:].iterrows():
+# Iterate through every region which has a valid GDP value
+for index, row in gdp_data.iloc[:].iterrows():
     
+    # Only use GDP data which 2014 and after
     if row['year'] >= 2014:
+        
+        # Iterate through Polygons and search for Region
         for i in range(len(nuts2_poly_2016['features'])):
+
+            # Region found
             if row['region'] == nuts2_poly_2016['features'][i]['properties']['NUTS_ID']:
                 
+                # If Mulitpolygon only take first (largerst) polygon
                 if nuts2_poly_2016['features'][i]['geometry']['type'] == 'MultiPolygon':
                     t = nuts2_poly_2016['features'][i]['geometry']['coordinates'][0]
                 else:    
                     t = nuts2_poly_2016['features'][i]['geometry']['coordinates']
 
+                # Get region name, year, and coordinates
                 region = nuts2_poly_2016['features'][i]['properties']['NUTS_ID']
                 area_name = row['region']+'_'+str(row['year'])
                 region = ee.Geometry.Polygon(t)
                 
+                # Define the polygon for Earth Engine, the Time Range and the Image Bands to use
                 dataset = ee.ImageCollection(sat_dat) \
                     .filterBounds(region) \
                     .filterDate((str(row['year'])+'-01-01'),(str(row['year'])+'-12-31')) \
                     .select(bands) 
-                    #.map(maskL8sr) \ 
+                    #.map(maskL8sr) \ # No Cloud masking possible/needed
+                
+                # Take the mean of the defined time range
                 dataset = dataset.reduce('mean')
+                
+                # Define it as a task to download to drive
                 task = ee.batch.Export.image.toDrive(image=dataset.clip(region),
                                         description=area_name,
                                         folder=folder,
@@ -126,30 +153,16 @@ for index, row in gdp_data.iloc[3163:].iterrows():
                                         maxPixels= 3784216672400,
                                         skipEmptyTiles=True)
 
+                # Start task
                 task.start()
                 
+                # Output
                 regions.append(region)
                 years.append(row['year'])
                 gdp_values.append(row['value'])
                 print(str(row['region'])+': '+row['region']+str(row['year'])+' will be downloaded.')
                 print(index,' out of ',len(gdp_data))
+    
     # Only for night
     else:
         pass
-
-
-# %%
-for i in range(len(nuts2_poly_2006['features'])):
-    print(nuts2_poly_2006['features'][i]['properties']['NUTS_ID'])
-
-# %%
-i = 0
-for index, row in gdp_data.iterrows():
-    if row['year'] < 2015 and len(row['region']) > 2:
-        i += 1
-    else:
-        pass
-
-print(i)
-
-# %%

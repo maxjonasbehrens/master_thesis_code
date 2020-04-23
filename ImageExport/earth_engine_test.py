@@ -1,9 +1,6 @@
 # First Test to download data from Earth Engine
 
-# -*- coding: utf-8 -*-
-#%%
-!pip install earthengine-api
-!earthengine authenticate
+### JUST TESTING ###
 
 #%%
 import ee
