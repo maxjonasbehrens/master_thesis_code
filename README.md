@@ -20,3 +20,10 @@ The code is divided into four main folders, which each include code for a separa
 The data pipeline for this project is quite complex as data was combined from different sources and saved into different folders. Thus, the code highly depends on the correct file paths, which are naturally very specific for my user. Without specifying the correct paths in the code, most of the code will not run.
 
 Further, the satellite images were saved to my Google Drive as this is the only way (known to me) to export satellite imagery from Earth Engine.
+
+## Coding Languages
+
+In this project, three different file types were used to include code. 
+  1. .py - Mainly used to prepare data and write functions to be used in jupyter notebooks
+  2. .ipynb - Jupyter Notebooks were used for data exploration, visualising data and training the CNN models
+  3. .R - R was mainly used for visualisation as ggplot produces beautiful plots
