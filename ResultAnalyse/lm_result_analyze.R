@@ -43,13 +43,16 @@ summary(fit_rel_n)
 library(dplyr)
 library(ggplot2)
 library(ggrepel)
+library(scales)
 
 # Plot of country level MAE and Country GDP for relative GDP
 result_relative_country_std %>% 
   ggplot(aes(mean,mae))+
   geom_label(aes(mean,mae,label=country),position = position_jitter(width = 300,height = 300,seed = 24))+
-  xlab("Mean GDP per Country")+
+  xlab("Average GDP per Country (in million €)")+
   ylab("MAE of Predictions on Test Set")+
+  scale_x_continuous(labels = comma)+
+  scale_y_continuous(labels = comma)+
   ggtitle("")+
   theme_bw(base_size = 16)
 
@@ -70,8 +73,10 @@ ggsave("~/Documents/Msc/Thesis/Data/results/mean_mse_rel.png", height = 6, width
 result_absolute_country_std %>% 
   ggplot(aes(mean,mae))+
   geom_label(aes(mean,mae,label=country),position = position_jitter(width = 500,height = 500,seed = 12))+
-  xlab("Mean GDP per Country")+
+  xlab("Average GDP per Country (in million €)")+
   ylab("MAE of Predictions on Test Set")+
+  scale_x_continuous(labels = comma)+
+  scale_y_continuous(labels = comma)+
   ggtitle("")+
   theme_bw(base_size = 16)
 
@@ -155,8 +160,10 @@ pred %>%
   ggplot(aes(test_preds, true_abs_vals, shape=as.factor(pred_metric)))+
   geom_point(size=2)+
   theme_bw(base_size = 16)+
-  xlab("Prediction GDP Values")+
-  ylab("True GDP Values")+
+  xlab("Predicted GDP Values (in million €)")+
+  ylab("True GDP Values (in million €)")+
+  scale_x_continuous(labels = comma)+
+  scale_y_continuous(labels = comma)+
   scale_shape_manual(values = c(2,15), name = 'Prediction Metric')
 
 ggsave("~/Documents/Msc/Thesis/Data/results/result_scatter.png", width = 8, height = 6)
@@ -174,8 +181,10 @@ scaled.pred %>%
   ggplot(aes(test_preds, true_abs_vals, shape=as.factor(pred_metric)))+
   geom_point(size=2)+
   theme_bw(base_size = 16)+
-  xlab("Prediction GDP Values")+
+  xlab("Predicted GDP Values")+
   ylab("True GDP Values")+
+  scale_x_continuous(labels = comma)+
+  scale_y_continuous(labels = comma)+
   scale_shape_manual(values = c(2,15), name = 'Prediction Metric')
 
 ggsave("~/Documents/Msc/Thesis/Data/results/result_scaled_scatter.png", width = 8, height = 6)
