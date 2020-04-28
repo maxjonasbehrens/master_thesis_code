@@ -48,7 +48,7 @@ library(scales)
 # Plot of country level MAE and Country GDP for relative GDP
 result_relative_country_std %>% 
   ggplot(aes(mean,mae))+
-  geom_label(aes(mean,mae,label=country),position = position_jitter(width = 300,height = 300,seed = 24))+
+  geom_label(aes(mean,mae,label=country),position = position_jitter(width = 300,height = 300,seed = 21))+
   xlab("Average GDP per Country (in million €)")+
   ylab("MAE of Predictions on Test Set")+
   scale_x_continuous(labels = comma)+
@@ -57,17 +57,6 @@ result_relative_country_std %>%
   theme_bw(base_size = 16)
 
 ggsave("~/Documents/Msc/Thesis/Data/results/mean_mae_rel.png", height = 6, width = 8)
-
-# Same with mse
-result_relative_country_std %>% 
-  ggplot(aes(mean,mse))+
-  geom_label(aes(mean,mse,label=country),position = position_jitter(width = 300,height = 6000000,seed=69))+
-  xlab("Mean GDP per Country")+
-  ylab("MSE of Predictions on Test Set")+
-  ggtitle("")+
-  theme_bw(base_size = 16)
-
-ggsave("~/Documents/Msc/Thesis/Data/results/mean_mse_rel.png", height = 6, width = 8)
 
 # Country Level MAE and average Country GDP for Absolute GDP
 result_absolute_country_std %>% 
@@ -125,6 +114,18 @@ result_preds_abs <- read_csv("~/Documents/Msc/Thesis/Data/results/result_preds_a
 result_preds_relative <- read_csv("~/Documents/Msc/Thesis/Data/results/result_preds_relative.csv")
 enhanced_gdp_data <- read_csv("~/Documents/Msc/Thesis/Data/gdp_data/enhanced_gdp_data.csv")
 
+# Relative GDP - Group by files and take average of predictions
+result_preds_relative <- result_preds_relative %>% 
+  group_by(test_files, country) %>% 
+  summarise_all(mean) %>% 
+  mutate(se = (test_true_vals-test_preds)^2, abs_error = abs(test_true_vals-test_preds))
+
+# Relative GDP - Group by files and take average of predictions
+result_preds_abs <- result_preds_abs %>% 
+  group_by(test_files, country) %>% 
+  summarise_all(mean) %>% 
+  mutate(se = (test_true_vals-test_preds)^2, abs_error = abs(test_true_vals-test_preds))
+
 # Merge absolute and relative results together
 result_preds_tot <- merge(result_preds_abs[,c('test_files','test_preds','test_true_vals')],result_preds_relative[,c('test_files','test_preds','test_true_vals')],
                           by='test_files')
@@ -176,7 +177,7 @@ names(scaled.preds_rel)[1] <- 'test_preds'
 scaled.preds_abs['pred_metric'] = 'Absolute GDP'
 scaled.preds_rel['pred_metric'] = 'Relative GDP'
 
-# Create Absolute Plots
+# Create Scaled Plots
 scaled.pred %>% 
   ggplot(aes(test_preds, true_abs_vals, shape=as.factor(pred_metric)))+
   geom_point(size=2)+
