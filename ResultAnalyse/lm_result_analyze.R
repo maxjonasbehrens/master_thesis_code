@@ -120,7 +120,7 @@ result_preds_relative <- result_preds_relative %>%
   summarise_all(mean) %>% 
   mutate(se = (test_true_vals-test_preds)^2, abs_error = abs(test_true_vals-test_preds))
 
-# Relative GDP - Group by files and take average of predictions
+# Absolute GDP - Group by files and take average of predictions
 result_preds_abs <- result_preds_abs %>% 
   group_by(test_files, country) %>% 
   summarise_all(mean) %>% 
