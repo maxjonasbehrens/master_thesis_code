@@ -61,7 +61,7 @@ ggsave("~/Documents/Msc/Thesis/Data/results/mean_mae_rel.png", height = 6, width
 # Country Level MAE and average Country GDP for Absolute GDP
 result_absolute_country_std %>% 
   ggplot(aes(mean,mae))+
-  geom_label(aes(mean,mae,label=country),position = position_jitter(width = 500,height = 500,seed = 12))+
+  geom_label(aes(mean,mae,label=country),position = position_jitter(width = 2000,height = 300,seed = 272835436))+
   xlab("Average GDP per Country (in million €)")+
   ylab("MAE of Predictions on Test Set")+
   scale_x_continuous(labels = comma)+
@@ -120,11 +120,19 @@ result_preds_relative <- result_preds_relative %>%
   summarise_all(mean) %>% 
   mutate(se = (test_true_vals-test_preds)^2, abs_error = abs(test_true_vals-test_preds))
 
+# Relative GDP - Unscaled Accuracy Metrics
+mean(result_preds_relative$se)
+mean(result_preds_relative$abs_error)
+
 # Absolute GDP - Group by files and take average of predictions
 result_preds_abs <- result_preds_abs %>% 
   group_by(test_files, country) %>% 
   summarise_all(mean) %>% 
   mutate(se = (test_true_vals-test_preds)^2, abs_error = abs(test_true_vals-test_preds))
+
+# Absolute GDP - Unscaled Accuracy Metrics
+mean(result_preds_abs$se)
+mean(result_preds_abs$abs_error)
 
 # Merge absolute and relative results together
 result_preds_tot <- merge(result_preds_abs[,c('test_files','test_preds','test_true_vals')],result_preds_relative[,c('test_files','test_preds','test_true_vals')],
